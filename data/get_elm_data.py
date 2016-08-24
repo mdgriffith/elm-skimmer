@@ -75,17 +75,8 @@ def get_github_data():
             print "failed retrieval"
         wait_for_reset_if_necessary(pkg_data.headers)
 
-
-        has_test_dir = requests.get(test_dir.format(package=pkg["name"]), params=credentials)
-        if has_test_dir.status_code < 300 and has_test_dir.status_code >= 200:
-            github_data["has_test_dir"] = len(json.loads(has_test_dir.content)) > 0
-        else:
-            github_data["has_test_dir"] = False
-        wait_for_reset_if_necessary(has_test_dir.headers)
-
-
-        if github_data["has_test_dir"] is False:
-            has_test_dir = requests.get(tests_dir.format(package=pkg["name"]), params=credentials)
+        if github_data:
+            has_test_dir = requests.get(test_dir.format(package=pkg["name"]), params=credentials)
             if has_test_dir.status_code < 300 and has_test_dir.status_code >= 200:
                 github_data["has_test_dir"] = len(json.loads(has_test_dir.content)) > 0
             else:
@@ -93,14 +84,23 @@ def get_github_data():
             wait_for_reset_if_necessary(has_test_dir.headers)
 
 
-        has_examples_dir = requests.get(examples_dir.format(package=pkg["name"]), params=credentials)
-        if has_examples_dir.status_code < 300 and has_examples_dir.status_code >= 200:
-            github_data["has_examples_dir"] = len(json.loads(has_examples_dir.content)) > 0
-        else:
-            github_data["has_examples_dir"] = False
-        wait_for_reset_if_necessary(has_examples_dir.headers)
+            if github_data["has_test_dir"] is False:
+                has_test_dir = requests.get(tests_dir.format(package=pkg["name"]), params=credentials)
+                if has_test_dir.status_code < 300 and has_test_dir.status_code >= 200:
+                    github_data["has_test_dir"] = len(json.loads(has_test_dir.content)) > 0
+                else:
+                    github_data["has_test_dir"] = False
+                wait_for_reset_if_necessary(has_test_dir.headers)
 
-        full_pkg_data[pkg["name"]] = github_data
+
+            has_examples_dir = requests.get(examples_dir.format(package=pkg["name"]), params=credentials)
+            if has_examples_dir.status_code < 300 and has_examples_dir.status_code >= 200:
+                github_data["has_examples_dir"] = len(json.loads(has_examples_dir.content)) > 0
+            else:
+                github_data["has_examples_dir"] = False
+            wait_for_reset_if_necessary(has_examples_dir.headers)
+
+            full_pkg_data[pkg["name"]] = github_data
 
         time.sleep(0.1)
 
@@ -127,6 +127,11 @@ def extract_metrics():
         index = INDEX.read()
         packages = json.loads(index)
 
+    new_packages = []
+    with open("primary/new-packages.json") as INDEX:
+        index = INDEX.read()
+        new_packages = json.loads(index)
+
     github_data = {}
     with open("primary/github-package-data.json") as INDEX:
         index = INDEX.read()
@@ -137,6 +142,9 @@ def extract_metrics():
     total = len(packages)
     full_pkg_data = []
     for i, pkg in enumerate(packages):
+
+        pkg["is_current"] = pkg["name"] in new_packages
+
         if pkg["name"] not in github_data:
             print pkg["name"] + " is not in github data"
             pkg["stars"] = 0
@@ -144,7 +152,6 @@ def extract_metrics():
             pkg["watchers"] = 0
             pkg["open_issues"] = 0
             continue
-
         repo_data = github_data[pkg["name"]]
         pkg["stars"] = repo_data["stargazers_count"]
         pkg["forks"] = repo_data["forks_count"]
@@ -173,5 +180,5 @@ def extract_metrics():
 
 if __name__ == "__main__":
     # get_elm_package_index()
-    get_github_data()
+    # get_github_data()
     extract_metrics()
