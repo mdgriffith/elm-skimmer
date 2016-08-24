@@ -14,12 +14,10 @@ now = datetime.datetime.now()
 
 redirect_matcher = re.compile("(?:elm-lang.org/|github.com/)?(\S+/[^/\.\s]+)")
 
-# https://api.github.com/repos/mdgriffith/elm-style-animation/contents/
-
 test_dir = "https://api.github.com/repos/{package}/contents/test?ref=master"
 tests_dir = "https://api.github.com/repos/{package}/contents/tests?ref=master"
 examples_dir = "https://api.github.com/repos/{package}/contents/examples?ref=master"
-
+elm_package_file = "https://raw.githubusercontent.com/{package}/master/elm-package.json?ref=master"
 
 
 def get_elm_package_index():
@@ -44,7 +42,7 @@ def wait_for_reset_if_necessary(headers):
         if remain == 0:
             now_epoch = time.time()
             waitFor = resetAt - now_epoch
-            print "waiting for " + str(waitFor) + "seconds for limits to reset"
+            print "waiting for " + str(waitFor) + " seconds for limits to reset"
             time.sleep(waitFor)
 
 
@@ -76,13 +74,13 @@ def get_github_data():
         wait_for_reset_if_necessary(pkg_data.headers)
 
         if github_data:
+            # Has Test Directory
             has_test_dir = requests.get(test_dir.format(package=pkg["name"]), params=credentials)
             if has_test_dir.status_code < 300 and has_test_dir.status_code >= 200:
                 github_data["has_test_dir"] = len(json.loads(has_test_dir.content)) > 0
             else:
                 github_data["has_test_dir"] = False
             wait_for_reset_if_necessary(has_test_dir.headers)
-
 
             if github_data["has_test_dir"] is False:
                 has_test_dir = requests.get(tests_dir.format(package=pkg["name"]), params=credentials)
@@ -92,13 +90,26 @@ def get_github_data():
                     github_data["has_test_dir"] = False
                 wait_for_reset_if_necessary(has_test_dir.headers)
 
-
+            # Has Examples Directory
             has_examples_dir = requests.get(examples_dir.format(package=pkg["name"]), params=credentials)
             if has_examples_dir.status_code < 300 and has_examples_dir.status_code >= 200:
                 github_data["has_examples_dir"] = len(json.loads(has_examples_dir.content)) > 0
             else:
                 github_data["has_examples_dir"] = False
             wait_for_reset_if_necessary(has_examples_dir.headers)
+
+            # Retrieve Elm Package Info
+            elm_package = requests.get(elm_package_file.format(package=pkg["name"]), params=credentials)
+            if elm_package.status_code < 300 and elm_package.status_code >= 200:
+                try:
+                    github_data["elm_package"] = json.loads(elm_package.content)
+                except ValueError:
+                    print "Error parsing elm-package.json for " + pkg["name"]
+                    github_data["elm_package"] = {}
+
+            else:
+                github_data["elm_package"] = {}
+            wait_for_reset_if_necessary(elm_package.headers)
 
             full_pkg_data[pkg["name"]] = github_data
 
@@ -178,7 +189,9 @@ def extract_metrics():
 
 
 
+
+
 if __name__ == "__main__":
     # get_elm_package_index()
-    # get_github_data()
-    extract_metrics()
+    get_github_data()
+    # extract_metrics()
