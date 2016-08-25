@@ -3,3 +3,5 @@ data/env
 *.json
 data/credentials
 data/primary
+src/Data.elm
+elm-stuff
