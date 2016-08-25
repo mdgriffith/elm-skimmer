@@ -154,22 +154,33 @@ def extract_metrics():
     full_pkg_data = []
     for i, pkg in enumerate(packages):
 
+        # Defaults
         pkg["is_current"] = pkg["name"] in new_packages
+        pkg["stars"] = 0
+        pkg["forks"] = 0
+        pkg["watchers"] = 0
+        pkg["open_issues"] = 0
+        pkg["has_tests"] = False
+        pkg["has_examples"] = False
+        pkg["license"] = None
+        pkg["deprecated"] = False
+        pkg["deprecation_redirect"] = None
+        pkg["no_data"] = True
 
         if pkg["name"] not in github_data:
             print pkg["name"] + " is not in github data"
-            pkg["stars"] = 0
-            pkg["forks"] = 0
-            pkg["watchers"] = 0
-            pkg["open_issues"] = 0
             continue
+
         repo_data = github_data[pkg["name"]]
+        pkg["no_data"] = False
         pkg["stars"] = repo_data["stargazers_count"]
         pkg["forks"] = repo_data["forks_count"]
         pkg["watchers"] = repo_data["subscribers_count"]
         pkg["open_issues"] = repo_data["open_issues_count"]
         pkg["has_tests"] = repo_data["has_test_dir"]
         pkg["has_examples"] = repo_data["has_examples_dir"]
+        if "elm_package" in repo_data:
+            pkg["license"] = repo_data["elm_package"].get("license", None)
 
         description = repo_data["description"]
         if description is None:
@@ -179,9 +190,8 @@ def extract_metrics():
             pkg["deprecated"] = True
             redirect = redirect_matcher.search(description)
             if redirect is not None:
-                pkg["deprecated_redirect"] = remove_github_prefix(redirect.group(1))
-        else:
-            pkg["deprecated"] = False
+                pkg["deprecation_redirect"] = remove_github_prefix(redirect.group(1))
+
 
     with open("metrics/current.json", "w") as INDEX:
         INDEX.write(json.dumps({'retrieved':str(now), 'packages':packages}, indent=4))
@@ -193,5 +203,5 @@ def extract_metrics():
 
 if __name__ == "__main__":
     # get_elm_package_index()
-    get_github_data()
-    # extract_metrics()
+    # get_github_data()
+    extract_metrics()
