@@ -2,8 +2,10 @@ port module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import Html.App
 import Time exposing (Time, second)
+import String
 
 
 main =
@@ -18,6 +20,7 @@ main =
 type alias Model =
     { retrieved : String
     , packages : List Package
+    , query : String
     }
 
 
@@ -39,16 +42,25 @@ type alias Package =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { retrieved = "Never", packages = [] }, Cmd.none )
+    ( { retrieved = "Never", packages = [], query = "" }, Cmd.none )
 
 
 type Msg
-    = Load Model
+    = Load
+        { retrieved : String
+        , packages : List Package
+        }
+    | Query String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        Query query ->
+            ( { model | query = query }
+            , Cmd.none
+            )
+
         Load packages ->
             let
                 sortedPkgs =
@@ -90,10 +102,21 @@ update msg model =
                         <|
                             packages.packages
             in
-                ( { packages | packages = sortedPkgs }, Cmd.none )
+                ( { model
+                    | packages = sortedPkgs
+                    , retrieved = packages.retrieved
+                  }
+                , Cmd.none
+                )
 
 
-port packages : (Model -> msg) -> Sub msg
+port packages :
+    ({ retrieved : String
+     , packages : List Package
+     }
+     -> msg
+    )
+    -> Sub msg
 
 
 subscriptions : Model -> Sub Msg
@@ -101,24 +124,57 @@ subscriptions model =
     packages Load
 
 
+searchFor : String -> List Package -> List Package
+searchFor query packages =
+    if query == "" then
+        packages
+    else
+        let
+            queryTerms =
+                String.words (String.toLower query)
+
+            matchesQueryTerms pkg =
+                let
+                    lowerName =
+                        String.toLower pkg.name
+
+                    lowerSummary =
+                        String.toLower pkg.summary
+
+                    findTerm term =
+                        String.contains term lowerName
+                            || String.contains term lowerSummary
+                in
+                    List.all findTerm queryTerms
+        in
+            List.filter matchesQueryTerms packages
+
+
 view : Model -> Html Msg
 view model =
     div []
-        [ viewToolbar model.retrieved
+        [ viewToolbar model.retrieved model.query
           --, viewSidebar
-        , viewPackages model.packages
+        , viewPackages (searchFor model.query model.packages)
         ]
 
 
-viewToolbar : String -> Html Msg
-viewToolbar refreshed =
+viewToolbar : String -> String -> Html Msg
+viewToolbar refreshed query =
     div [ class "toolbar" ]
         [ span [ class "logo" ]
             [ text "elm package"
             , br [] []
             , text "skimmer"
             ]
-        , input [ class "search", placeholder "Search" ] []
+        , input
+            [ class "search"
+            , placeholder "Search"
+            , value query
+            , onInput Query
+            , autofocus True
+            ]
+            []
         , span [ class "info" ] [ text <| "Data updated on " ++ refreshed ]
         ]
 

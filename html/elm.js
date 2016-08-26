@@ -8245,6 +8245,107 @@ var _elm_lang$html$Html_Attributes$classList = function (list) {
 };
 var _elm_lang$html$Html_Attributes$style = _elm_lang$virtual_dom$VirtualDom$style;
 
+var _elm_lang$html$Html_Events$keyCode = A2(_elm_lang$core$Json_Decode_ops[':='], 'keyCode', _elm_lang$core$Json_Decode$int);
+var _elm_lang$html$Html_Events$targetChecked = A2(
+	_elm_lang$core$Json_Decode$at,
+	_elm_lang$core$Native_List.fromArray(
+		['target', 'checked']),
+	_elm_lang$core$Json_Decode$bool);
+var _elm_lang$html$Html_Events$targetValue = A2(
+	_elm_lang$core$Json_Decode$at,
+	_elm_lang$core$Native_List.fromArray(
+		['target', 'value']),
+	_elm_lang$core$Json_Decode$string);
+var _elm_lang$html$Html_Events$defaultOptions = _elm_lang$virtual_dom$VirtualDom$defaultOptions;
+var _elm_lang$html$Html_Events$onWithOptions = _elm_lang$virtual_dom$VirtualDom$onWithOptions;
+var _elm_lang$html$Html_Events$on = _elm_lang$virtual_dom$VirtualDom$on;
+var _elm_lang$html$Html_Events$onFocus = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'focus',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onBlur = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'blur',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onSubmitOptions = _elm_lang$core$Native_Utils.update(
+	_elm_lang$html$Html_Events$defaultOptions,
+	{preventDefault: true});
+var _elm_lang$html$Html_Events$onSubmit = function (msg) {
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
+		'submit',
+		_elm_lang$html$Html_Events$onSubmitOptions,
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onCheck = function (tagger) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'change',
+		A2(_elm_lang$core$Json_Decode$map, tagger, _elm_lang$html$Html_Events$targetChecked));
+};
+var _elm_lang$html$Html_Events$onInput = function (tagger) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'input',
+		A2(_elm_lang$core$Json_Decode$map, tagger, _elm_lang$html$Html_Events$targetValue));
+};
+var _elm_lang$html$Html_Events$onMouseOut = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseout',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseOver = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseover',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseLeave = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseleave',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseEnter = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseenter',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseUp = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseup',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseDown = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mousedown',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onDoubleClick = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'dblclick',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onClick = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'click',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$Options = F2(
+	function (a, b) {
+		return {stopPropagation: a, preventDefault: b};
+	});
+
 var _mdgriffith$elm_package_skimmer$Main$has = F2(
 	function (label, metric) {
 		return metric ? A2(
@@ -8829,115 +8930,85 @@ _mdgriffith$elm_package_skimmer$Main_ops['=>'] = F2(
 	function (v0, v1) {
 		return {ctor: '_Tuple2', _0: v0, _1: v1};
 	});
-var _mdgriffith$elm_package_skimmer$Main$viewToolbar = function (refreshed) {
-	return A2(
-		_elm_lang$html$Html$div,
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$html$Html_Attributes$class('toolbar')
-			]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				A2(
-				_elm_lang$html$Html$span,
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html_Attributes$class('logo')
-					]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text('elm package'),
-						A2(
-						_elm_lang$html$Html$br,
-						_elm_lang$core$Native_List.fromArray(
-							[]),
-						_elm_lang$core$Native_List.fromArray(
-							[])),
-						_elm_lang$html$Html$text('skimmer')
-					])),
-				A2(
-				_elm_lang$html$Html$input,
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html_Attributes$class('search'),
-						_elm_lang$html$Html_Attributes$placeholder('Search')
-					]),
-				_elm_lang$core$Native_List.fromArray(
-					[])),
-				A2(
-				_elm_lang$html$Html$span,
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html_Attributes$class('info')
-					]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text(
-						A2(_elm_lang$core$Basics_ops['++'], 'Data updated on ', refreshed))
-					]))
-			]));
-};
-var _mdgriffith$elm_package_skimmer$Main$view = function (model) {
-	return A2(
-		_elm_lang$html$Html$div,
-		_elm_lang$core$Native_List.fromArray(
-			[]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_mdgriffith$elm_package_skimmer$Main$viewToolbar(model.retrieved),
-				_mdgriffith$elm_package_skimmer$Main$viewPackages(model.packages)
-			]));
-};
+var _mdgriffith$elm_package_skimmer$Main$searchFor = F2(
+	function (query, packages) {
+		if (_elm_lang$core$Native_Utils.eq(query, '')) {
+			return packages;
+		} else {
+			var queryTerms = _elm_lang$core$String$words(
+				_elm_lang$core$String$toLower(query));
+			var matchesQueryTerms = function (pkg) {
+				var lowerSummary = _elm_lang$core$String$toLower(pkg.summary);
+				var lowerName = _elm_lang$core$String$toLower(pkg.name);
+				var findTerm = function (term) {
+					return A2(_elm_lang$core$String$contains, term, lowerName) || A2(_elm_lang$core$String$contains, term, lowerSummary);
+				};
+				return A2(_elm_lang$core$List$all, findTerm, queryTerms);
+			};
+			return A2(_elm_lang$core$List$filter, matchesQueryTerms, packages);
+		}
+	});
 var _mdgriffith$elm_package_skimmer$Main$update = F2(
 	function (msg, model) {
 		var _p1 = msg;
-		var _p4 = _p1._0;
-		var sortedPkgs = _elm_lang$core$List$reverse(
-			A2(
-				_elm_lang$core$List$sortWith,
-				F2(
-					function (pkg1, pkg2) {
-						var stars = A2(_elm_lang$core$Basics$compare, pkg1.stars, pkg2.stars);
-						var compareBool = function (b1) {
-							return b1 ? 1 : 0;
-						};
-						var dep = A2(
-							_elm_lang$core$Basics$compare,
-							compareBool(
-								_elm_lang$core$Basics$not(pkg1.deprecated)),
-							compareBool(
-								_elm_lang$core$Basics$not(pkg2.deprecated)));
-						var current = A2(
-							_elm_lang$core$Basics$compare,
-							compareBool(pkg1.is_current),
-							compareBool(pkg2.is_current));
-						var _p2 = dep;
-						if (_p2.ctor === 'EQ') {
-							var _p3 = current;
-							if (_p3.ctor === 'EQ') {
-								return stars;
+		if (_p1.ctor === 'Query') {
+			return {
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Native_Utils.update(
+					model,
+					{query: _p1._0}),
+				_1: _elm_lang$core$Platform_Cmd$none
+			};
+		} else {
+			var _p4 = _p1._0;
+			var sortedPkgs = _elm_lang$core$List$reverse(
+				A2(
+					_elm_lang$core$List$sortWith,
+					F2(
+						function (pkg1, pkg2) {
+							var stars = A2(_elm_lang$core$Basics$compare, pkg1.stars, pkg2.stars);
+							var compareBool = function (b1) {
+								return b1 ? 1 : 0;
+							};
+							var dep = A2(
+								_elm_lang$core$Basics$compare,
+								compareBool(
+									_elm_lang$core$Basics$not(pkg1.deprecated)),
+								compareBool(
+									_elm_lang$core$Basics$not(pkg2.deprecated)));
+							var current = A2(
+								_elm_lang$core$Basics$compare,
+								compareBool(pkg1.is_current),
+								compareBool(pkg2.is_current));
+							var _p2 = dep;
+							if (_p2.ctor === 'EQ') {
+								var _p3 = current;
+								if (_p3.ctor === 'EQ') {
+									return stars;
+								} else {
+									return current;
+								}
 							} else {
-								return current;
+								return dep;
 							}
-						} else {
-							return dep;
-						}
-					}),
-				_p4.packages));
-		return {
-			ctor: '_Tuple2',
-			_0: _elm_lang$core$Native_Utils.update(
-				_p4,
-				{packages: sortedPkgs}),
-			_1: _elm_lang$core$Platform_Cmd$none
-		};
+						}),
+					_p4.packages));
+			return {
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Native_Utils.update(
+					model,
+					{packages: sortedPkgs, retrieved: _p4.retrieved}),
+				_1: _elm_lang$core$Platform_Cmd$none
+			};
+		}
 	});
 var _mdgriffith$elm_package_skimmer$Main$init = {
 	ctor: '_Tuple2',
 	_0: {
 		retrieved: 'Never',
 		packages: _elm_lang$core$Native_List.fromArray(
-			[])
+			[]),
+		query: ''
 	},
 	_1: _elm_lang$core$Platform_Cmd$none
 };
@@ -9031,9 +9102,9 @@ var _mdgriffith$elm_package_skimmer$Main$packages = _elm_lang$core$Native_Platfo
 						{retrieved: retrieved, packages: packages});
 				});
 		}));
-var _mdgriffith$elm_package_skimmer$Main$Model = F2(
-	function (a, b) {
-		return {retrieved: a, packages: b};
+var _mdgriffith$elm_package_skimmer$Main$Model = F3(
+	function (a, b, c) {
+		return {retrieved: a, packages: b, query: c};
 	});
 var _mdgriffith$elm_package_skimmer$Main$Package = function (a) {
 	return function (b) {
@@ -9059,6 +9130,73 @@ var _mdgriffith$elm_package_skimmer$Main$Package = function (a) {
 			};
 		};
 	};
+};
+var _mdgriffith$elm_package_skimmer$Main$Query = function (a) {
+	return {ctor: 'Query', _0: a};
+};
+var _mdgriffith$elm_package_skimmer$Main$viewToolbar = F2(
+	function (refreshed, query) {
+		return A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$class('toolbar')
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					A2(
+					_elm_lang$html$Html$span,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('logo')
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text('elm package'),
+							A2(
+							_elm_lang$html$Html$br,
+							_elm_lang$core$Native_List.fromArray(
+								[]),
+							_elm_lang$core$Native_List.fromArray(
+								[])),
+							_elm_lang$html$Html$text('skimmer')
+						])),
+					A2(
+					_elm_lang$html$Html$input,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('search'),
+							_elm_lang$html$Html_Attributes$placeholder('Search'),
+							_elm_lang$html$Html_Attributes$value(query),
+							_elm_lang$html$Html_Events$onInput(_mdgriffith$elm_package_skimmer$Main$Query),
+							_elm_lang$html$Html_Attributes$autofocus(true)
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[])),
+					A2(
+					_elm_lang$html$Html$span,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('info')
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text(
+							A2(_elm_lang$core$Basics_ops['++'], 'Data updated on ', refreshed))
+						]))
+				]));
+	});
+var _mdgriffith$elm_package_skimmer$Main$view = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(_mdgriffith$elm_package_skimmer$Main$viewToolbar, model.retrieved, model.query),
+				_mdgriffith$elm_package_skimmer$Main$viewPackages(
+				A2(_mdgriffith$elm_package_skimmer$Main$searchFor, model.query, model.packages))
+			]));
 };
 var _mdgriffith$elm_package_skimmer$Main$Load = function (a) {
 	return {ctor: 'Load', _0: a};
