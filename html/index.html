@@ -9,6 +9,7 @@
                 background-color: #f7f7f7;
                 font-family: 'Open Sans',  sans-serif;
                 font-size:14px;
+                margin:0px;
 
 
             }
@@ -20,7 +21,10 @@
                 text-decoration: underline;
                 color: rgb(234,21,122);
             }
-
+            .info {
+                margin: 15px 0;
+                color:#CCC;
+            }
             .metrics {
                 height:100px;
                 display:flex;
@@ -43,7 +47,15 @@
                 border-radius: 5px;
                 position:relative;
                 box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
+                overflow:hidden;
 
+            }
+            .package-svg {
+                width:120px;
+                position:absolute;
+                bottom:-4px;
+                right:-1px;
+                transform: scaleX(-1) scaleY(-1);
             }
             .sidebar {
                 /*float:left;*/
@@ -66,6 +78,7 @@
                 flex-direction: row;
                 flex-wrap: wrap;
                 justify-content: center;
+                z-index:100;
             }
             i.fa {
                 width:16px;
@@ -81,6 +94,7 @@
                 position:relative;
                 padding:20px;
                 justify-content: center;
+                z-index:0;
 
             }
             .search {
@@ -91,8 +105,7 @@
                 outline: none;
                 border: 1px solid #eeeeee;
                 border-radius: 8px;
-                /*margin-top: 40px;*/
-                /*margin-bottom: 10px;*/
+                z-index:100;
 
             }
             ul {
@@ -100,9 +113,39 @@
             }
             .logo {
                 width: 297px;
+                z-index:100;
+            }
+            .logo-svg {
+                position:absolute;
+                top:0;
+                left:0;
+                z-index:0;
+                width:340px;
+                height:auto;
+            }
+            .logo-text {
+                z-index: 100;
+                position: absolute;
+                left: 38px;
+                top: 4px;
+            }
+            .logo-text .elm-name {
+                font-size: 1.6rem;
+                line-height: 0.8rem;
+            }
+            .logo-text .package-skimmer {
+                font-size: 0.8rem;
+                width: 50px;
+                position: relative;
+                display: inline-block;
+                line-height: 0.8rem;
+                margin-left:5px;
+            }
+            .sidebar .top-header {
+                margin-top:0;
             }
 
-
+      
 
         </style>
     </head>

@@ -64,43 +64,41 @@ update msg model =
         Load packages ->
             let
                 sortedPkgs =
-                    List.reverse <|
-                        List.sortWith
-                            (\pkg1 pkg2 ->
-                                let
-                                    compareBool b1 =
-                                        if b1 then
-                                            1
-                                        else
-                                            0
+                    List.sortWith
+                        (\pkg1 pkg2 ->
+                            let
+                                boolAsInt b1 =
+                                    if b1 then
+                                        1
+                                    else
+                                        0
 
-                                    dep =
-                                        compare
-                                            (compareBool <| not pkg1.deprecated)
-                                            (compareBool <| not pkg2.deprecated)
+                                dep =
+                                    compare
+                                        (boolAsInt <| not pkg2.deprecated)
+                                        (boolAsInt <| not pkg1.deprecated)
 
-                                    current =
-                                        compare
-                                            (compareBool pkg1.is_current)
-                                            (compareBool pkg2.is_current)
+                                current =
+                                    compare
+                                        (boolAsInt pkg2.is_current)
+                                        (boolAsInt pkg1.is_current)
 
-                                    stars =
-                                        compare pkg1.stars pkg2.stars
-                                in
-                                    case dep of
-                                        EQ ->
-                                            case current of
-                                                EQ ->
-                                                    stars
+                                stars =
+                                    compare pkg2.stars pkg1.stars
+                            in
+                                case dep of
+                                    EQ ->
+                                        case current of
+                                            EQ ->
+                                                stars
 
-                                                _ ->
-                                                    current
+                                            _ ->
+                                                current
 
-                                        _ ->
-                                            dep
-                            )
-                        <|
-                            packages.packages
+                                    _ ->
+                                        dep
+                        )
+                        packages.packages
             in
                 ( { model
                     | packages = sortedPkgs
@@ -154,7 +152,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ viewToolbar model.retrieved model.query
-          --, viewSidebar
+          --, div [] [viewSidebar]
         , viewPackages (searchFor model.query model.packages)
         ]
 
@@ -163,9 +161,11 @@ viewToolbar : String -> String -> Html Msg
 viewToolbar refreshed query =
     div [ class "toolbar" ]
         [ span [ class "logo" ]
-            [ text "elm package"
-            , br [] []
-            , text "skimmer"
+            [ img [ class "logo-svg", src "elm_package_logo-grey.svg" ] []
+            , span [ class "logo-text" ]
+                [ span [ class "elm-name" ] [ text "elm" ]
+                , span [ class "package-skimmer" ] [ text "package skimmer" ]
+                ]
             ]
         , input
             [ class "search"
@@ -175,7 +175,7 @@ viewToolbar refreshed query =
             , autofocus True
             ]
             []
-        , span [ class "info" ] [ text <| "Data updated on " ++ refreshed ]
+        , span [ class "info" ] [ text <| "updated on " ++ refreshed ]
         ]
 
 
@@ -213,17 +213,18 @@ viewPackages pkgs =
                                 [ i [ class <| "fa fa-legal" ] []
                                 , text <| " " ++ license ++ " license"
                                 ]
+                    , img [ class "package-svg", src "elm_package_logo.svg" ] []
                     ]
                 ]
     in
-        div [ class "packages" ] <|
-            List.map viewPkg pkgs
+        div [ class "packages" ]
+            (viewSidebar :: List.map viewPkg pkgs)
 
 
 viewSidebar : Html Msg
 viewSidebar =
     div [ class "sidebar" ]
-        [ h2 [] [ text "Resources" ]
+        [ h2 [ class "top-header" ] [ text "Resources" ]
         , ul []
             [ li [] [ a [] [ text "Fancy Search" ] ]
             , li [] [ a [] [ text "Using Packages" ] ]
@@ -235,28 +236,36 @@ viewSidebar =
         , h2 [] [ text "Standard Packages" ]
         , ul []
             [ li []
-                [ h2 [] [ text "General" ]
-                , li [] [ a [] [ text "core" ] ]
+                [ text "General"
+                , ul []
+                    [ li [] [ a [] [ text "core" ] ]
+                    ]
                 ]
             , li []
-                [ h2 [] [ text "Rendering" ]
-                , li [] [ a [] [ text "html" ] ]
-                , li [] [ a [] [ text "svg" ] ]
-                , li [] [ a [] [ text "markdown" ] ]
+                [ text "Rendering"
+                , ul []
+                    [ li [] [ a [] [ text "html" ] ]
+                    , li [] [ a [] [ text "svg" ] ]
+                    , li [] [ a [] [ text "markdown" ] ]
+                    ]
                 ]
             , li []
-                [ h2 [] [ text "Effects" ]
-                , li [] [ a [] [ text "http" ] ]
-                , li [] [ a [] [ text "geolocation" ] ]
-                , li [] [ a [] [ text "navigation" ] ]
-                , li [] [ a [] [ text "page-visibility" ] ]
-                , li [] [ a [] [ text "websocket" ] ]
+                [ text "Effects"
+                , ul []
+                    [ li [] [ a [] [ text "http" ] ]
+                    , li [] [ a [] [ text "geolocation" ] ]
+                    , li [] [ a [] [ text "navigation" ] ]
+                    , li [] [ a [] [ text "page-visibility" ] ]
+                    , li [] [ a [] [ text "websocket" ] ]
+                    ]
                 ]
             , li []
-                [ h2 [] [ text "User Input" ]
-                , li [] [ a [] [ text "mouse" ] ]
-                , li [] [ a [] [ text "window" ] ]
-                , li [] [ a [] [ text "keyboard" ] ]
+                [ text "User Input"
+                , ul []
+                    [ li [] [ a [] [ text "mouse" ] ]
+                    , li [] [ a [] [ text "window" ] ]
+                    , li [] [ a [] [ text "keyboard" ] ]
+                    ]
                 ]
             ]
         ]

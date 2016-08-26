@@ -8451,7 +8451,9 @@ var _mdgriffith$elm_package_skimmer$Main$viewSidebar = A2(
 			A2(
 			_elm_lang$html$Html$h2,
 			_elm_lang$core$Native_List.fromArray(
-				[]),
+				[
+					_elm_lang$html$Html_Attributes$class('top-header')
+				]),
 			_elm_lang$core$Native_List.fromArray(
 				[
 					_elm_lang$html$Html$text('Resources')
@@ -8573,27 +8575,27 @@ var _mdgriffith$elm_package_skimmer$Main$viewSidebar = A2(
 						[]),
 					_elm_lang$core$Native_List.fromArray(
 						[
+							_elm_lang$html$Html$text('General'),
 							A2(
-							_elm_lang$html$Html$h2,
-							_elm_lang$core$Native_List.fromArray(
-								[]),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html$text('General')
-								])),
-							A2(
-							_elm_lang$html$Html$li,
+							_elm_lang$html$Html$ul,
 							_elm_lang$core$Native_List.fromArray(
 								[]),
 							_elm_lang$core$Native_List.fromArray(
 								[
 									A2(
-									_elm_lang$html$Html$a,
+									_elm_lang$html$Html$li,
 									_elm_lang$core$Native_List.fromArray(
 										[]),
 									_elm_lang$core$Native_List.fromArray(
 										[
-											_elm_lang$html$Html$text('core')
+											A2(
+											_elm_lang$html$Html$a,
+											_elm_lang$core$Native_List.fromArray(
+												[]),
+											_elm_lang$core$Native_List.fromArray(
+												[
+													_elm_lang$html$Html$text('core')
+												]))
 										]))
 								]))
 						])),
@@ -8603,147 +8605,57 @@ var _mdgriffith$elm_package_skimmer$Main$viewSidebar = A2(
 						[]),
 					_elm_lang$core$Native_List.fromArray(
 						[
+							_elm_lang$html$Html$text('Rendering'),
 							A2(
-							_elm_lang$html$Html$h2,
-							_elm_lang$core$Native_List.fromArray(
-								[]),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html$text('Rendering')
-								])),
-							A2(
-							_elm_lang$html$Html$li,
+							_elm_lang$html$Html$ul,
 							_elm_lang$core$Native_List.fromArray(
 								[]),
 							_elm_lang$core$Native_List.fromArray(
 								[
 									A2(
-									_elm_lang$html$Html$a,
+									_elm_lang$html$Html$li,
 									_elm_lang$core$Native_List.fromArray(
 										[]),
 									_elm_lang$core$Native_List.fromArray(
 										[
-											_elm_lang$html$Html$text('html')
-										]))
-								])),
-							A2(
-							_elm_lang$html$Html$li,
-							_elm_lang$core$Native_List.fromArray(
-								[]),
-							_elm_lang$core$Native_List.fromArray(
-								[
+											A2(
+											_elm_lang$html$Html$a,
+											_elm_lang$core$Native_List.fromArray(
+												[]),
+											_elm_lang$core$Native_List.fromArray(
+												[
+													_elm_lang$html$Html$text('html')
+												]))
+										])),
 									A2(
-									_elm_lang$html$Html$a,
+									_elm_lang$html$Html$li,
 									_elm_lang$core$Native_List.fromArray(
 										[]),
 									_elm_lang$core$Native_List.fromArray(
 										[
-											_elm_lang$html$Html$text('svg')
-										]))
-								])),
-							A2(
-							_elm_lang$html$Html$li,
-							_elm_lang$core$Native_List.fromArray(
-								[]),
-							_elm_lang$core$Native_List.fromArray(
-								[
+											A2(
+											_elm_lang$html$Html$a,
+											_elm_lang$core$Native_List.fromArray(
+												[]),
+											_elm_lang$core$Native_List.fromArray(
+												[
+													_elm_lang$html$Html$text('svg')
+												]))
+										])),
 									A2(
-									_elm_lang$html$Html$a,
+									_elm_lang$html$Html$li,
 									_elm_lang$core$Native_List.fromArray(
 										[]),
 									_elm_lang$core$Native_List.fromArray(
 										[
-											_elm_lang$html$Html$text('markdown')
-										]))
-								]))
-						])),
-					A2(
-					_elm_lang$html$Html$li,
-					_elm_lang$core$Native_List.fromArray(
-						[]),
-					_elm_lang$core$Native_List.fromArray(
-						[
-							A2(
-							_elm_lang$html$Html$h2,
-							_elm_lang$core$Native_List.fromArray(
-								[]),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html$text('Effects')
-								])),
-							A2(
-							_elm_lang$html$Html$li,
-							_elm_lang$core$Native_List.fromArray(
-								[]),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									A2(
-									_elm_lang$html$Html$a,
-									_elm_lang$core$Native_List.fromArray(
-										[]),
-									_elm_lang$core$Native_List.fromArray(
-										[
-											_elm_lang$html$Html$text('http')
-										]))
-								])),
-							A2(
-							_elm_lang$html$Html$li,
-							_elm_lang$core$Native_List.fromArray(
-								[]),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									A2(
-									_elm_lang$html$Html$a,
-									_elm_lang$core$Native_List.fromArray(
-										[]),
-									_elm_lang$core$Native_List.fromArray(
-										[
-											_elm_lang$html$Html$text('geolocation')
-										]))
-								])),
-							A2(
-							_elm_lang$html$Html$li,
-							_elm_lang$core$Native_List.fromArray(
-								[]),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									A2(
-									_elm_lang$html$Html$a,
-									_elm_lang$core$Native_List.fromArray(
-										[]),
-									_elm_lang$core$Native_List.fromArray(
-										[
-											_elm_lang$html$Html$text('navigation')
-										]))
-								])),
-							A2(
-							_elm_lang$html$Html$li,
-							_elm_lang$core$Native_List.fromArray(
-								[]),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									A2(
-									_elm_lang$html$Html$a,
-									_elm_lang$core$Native_List.fromArray(
-										[]),
-									_elm_lang$core$Native_List.fromArray(
-										[
-											_elm_lang$html$Html$text('page-visibility')
-										]))
-								])),
-							A2(
-							_elm_lang$html$Html$li,
-							_elm_lang$core$Native_List.fromArray(
-								[]),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									A2(
-									_elm_lang$html$Html$a,
-									_elm_lang$core$Native_List.fromArray(
-										[]),
-									_elm_lang$core$Native_List.fromArray(
-										[
-											_elm_lang$html$Html$text('websocket')
+											A2(
+											_elm_lang$html$Html$a,
+											_elm_lang$core$Native_List.fromArray(
+												[]),
+											_elm_lang$core$Native_List.fromArray(
+												[
+													_elm_lang$html$Html$text('markdown')
+												]))
 										]))
 								]))
 						])),
@@ -8753,57 +8665,147 @@ var _mdgriffith$elm_package_skimmer$Main$viewSidebar = A2(
 						[]),
 					_elm_lang$core$Native_List.fromArray(
 						[
+							_elm_lang$html$Html$text('Effects'),
 							A2(
-							_elm_lang$html$Html$h2,
-							_elm_lang$core$Native_List.fromArray(
-								[]),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html$text('User Input')
-								])),
-							A2(
-							_elm_lang$html$Html$li,
+							_elm_lang$html$Html$ul,
 							_elm_lang$core$Native_List.fromArray(
 								[]),
 							_elm_lang$core$Native_List.fromArray(
 								[
 									A2(
-									_elm_lang$html$Html$a,
+									_elm_lang$html$Html$li,
 									_elm_lang$core$Native_List.fromArray(
 										[]),
 									_elm_lang$core$Native_List.fromArray(
 										[
-											_elm_lang$html$Html$text('mouse')
+											A2(
+											_elm_lang$html$Html$a,
+											_elm_lang$core$Native_List.fromArray(
+												[]),
+											_elm_lang$core$Native_List.fromArray(
+												[
+													_elm_lang$html$Html$text('http')
+												]))
+										])),
+									A2(
+									_elm_lang$html$Html$li,
+									_elm_lang$core$Native_List.fromArray(
+										[]),
+									_elm_lang$core$Native_List.fromArray(
+										[
+											A2(
+											_elm_lang$html$Html$a,
+											_elm_lang$core$Native_List.fromArray(
+												[]),
+											_elm_lang$core$Native_List.fromArray(
+												[
+													_elm_lang$html$Html$text('geolocation')
+												]))
+										])),
+									A2(
+									_elm_lang$html$Html$li,
+									_elm_lang$core$Native_List.fromArray(
+										[]),
+									_elm_lang$core$Native_List.fromArray(
+										[
+											A2(
+											_elm_lang$html$Html$a,
+											_elm_lang$core$Native_List.fromArray(
+												[]),
+											_elm_lang$core$Native_List.fromArray(
+												[
+													_elm_lang$html$Html$text('navigation')
+												]))
+										])),
+									A2(
+									_elm_lang$html$Html$li,
+									_elm_lang$core$Native_List.fromArray(
+										[]),
+									_elm_lang$core$Native_List.fromArray(
+										[
+											A2(
+											_elm_lang$html$Html$a,
+											_elm_lang$core$Native_List.fromArray(
+												[]),
+											_elm_lang$core$Native_List.fromArray(
+												[
+													_elm_lang$html$Html$text('page-visibility')
+												]))
+										])),
+									A2(
+									_elm_lang$html$Html$li,
+									_elm_lang$core$Native_List.fromArray(
+										[]),
+									_elm_lang$core$Native_List.fromArray(
+										[
+											A2(
+											_elm_lang$html$Html$a,
+											_elm_lang$core$Native_List.fromArray(
+												[]),
+											_elm_lang$core$Native_List.fromArray(
+												[
+													_elm_lang$html$Html$text('websocket')
+												]))
 										]))
-								])),
+								]))
+						])),
+					A2(
+					_elm_lang$html$Html$li,
+					_elm_lang$core$Native_List.fromArray(
+						[]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text('User Input'),
 							A2(
-							_elm_lang$html$Html$li,
+							_elm_lang$html$Html$ul,
 							_elm_lang$core$Native_List.fromArray(
 								[]),
 							_elm_lang$core$Native_List.fromArray(
 								[
 									A2(
-									_elm_lang$html$Html$a,
+									_elm_lang$html$Html$li,
 									_elm_lang$core$Native_List.fromArray(
 										[]),
 									_elm_lang$core$Native_List.fromArray(
 										[
-											_elm_lang$html$Html$text('window')
-										]))
-								])),
-							A2(
-							_elm_lang$html$Html$li,
-							_elm_lang$core$Native_List.fromArray(
-								[]),
-							_elm_lang$core$Native_List.fromArray(
-								[
+											A2(
+											_elm_lang$html$Html$a,
+											_elm_lang$core$Native_List.fromArray(
+												[]),
+											_elm_lang$core$Native_List.fromArray(
+												[
+													_elm_lang$html$Html$text('mouse')
+												]))
+										])),
 									A2(
-									_elm_lang$html$Html$a,
+									_elm_lang$html$Html$li,
 									_elm_lang$core$Native_List.fromArray(
 										[]),
 									_elm_lang$core$Native_List.fromArray(
 										[
-											_elm_lang$html$Html$text('keyboard')
+											A2(
+											_elm_lang$html$Html$a,
+											_elm_lang$core$Native_List.fromArray(
+												[]),
+											_elm_lang$core$Native_List.fromArray(
+												[
+													_elm_lang$html$Html$text('window')
+												]))
+										])),
+									A2(
+									_elm_lang$html$Html$li,
+									_elm_lang$core$Native_List.fromArray(
+										[]),
+									_elm_lang$core$Native_List.fromArray(
+										[
+											A2(
+											_elm_lang$html$Html$a,
+											_elm_lang$core$Native_List.fromArray(
+												[]),
+											_elm_lang$core$Native_List.fromArray(
+												[
+													_elm_lang$html$Html$text('keyboard')
+												]))
 										]))
 								]))
 						]))
@@ -8913,7 +8915,16 @@ var _mdgriffith$elm_package_skimmer$Main$viewPackages = function (pkgs) {
 												A2(_elm_lang$core$Basics_ops['++'], _p0._0, ' license')))
 										]));
 							}
-						}()
+						}(),
+							A2(
+							_elm_lang$html$Html$img,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$class('package-svg'),
+									_elm_lang$html$Html_Attributes$src('elm_package_logo.svg')
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[]))
 						]))
 				]));
 	};
@@ -8923,7 +8934,10 @@ var _mdgriffith$elm_package_skimmer$Main$viewPackages = function (pkgs) {
 			[
 				_elm_lang$html$Html_Attributes$class('packages')
 			]),
-		A2(_elm_lang$core$List$map, viewPkg, pkgs));
+		A2(
+			_elm_lang$core$List_ops['::'],
+			_mdgriffith$elm_package_skimmer$Main$viewSidebar,
+			A2(_elm_lang$core$List$map, viewPkg, pkgs)));
 };
 var _mdgriffith$elm_package_skimmer$Main_ops = _mdgriffith$elm_package_skimmer$Main_ops || {};
 _mdgriffith$elm_package_skimmer$Main_ops['=>'] = F2(
@@ -8961,38 +8975,37 @@ var _mdgriffith$elm_package_skimmer$Main$update = F2(
 			};
 		} else {
 			var _p4 = _p1._0;
-			var sortedPkgs = _elm_lang$core$List$reverse(
-				A2(
-					_elm_lang$core$List$sortWith,
-					F2(
-						function (pkg1, pkg2) {
-							var stars = A2(_elm_lang$core$Basics$compare, pkg1.stars, pkg2.stars);
-							var compareBool = function (b1) {
-								return b1 ? 1 : 0;
-							};
-							var dep = A2(
-								_elm_lang$core$Basics$compare,
-								compareBool(
-									_elm_lang$core$Basics$not(pkg1.deprecated)),
-								compareBool(
-									_elm_lang$core$Basics$not(pkg2.deprecated)));
-							var current = A2(
-								_elm_lang$core$Basics$compare,
-								compareBool(pkg1.is_current),
-								compareBool(pkg2.is_current));
-							var _p2 = dep;
-							if (_p2.ctor === 'EQ') {
-								var _p3 = current;
-								if (_p3.ctor === 'EQ') {
-									return stars;
-								} else {
-									return current;
-								}
+			var sortedPkgs = A2(
+				_elm_lang$core$List$sortWith,
+				F2(
+					function (pkg1, pkg2) {
+						var stars = A2(_elm_lang$core$Basics$compare, pkg2.stars, pkg1.stars);
+						var compareBool = function (b1) {
+							return b1 ? 1 : 0;
+						};
+						var dep = A2(
+							_elm_lang$core$Basics$compare,
+							compareBool(
+								_elm_lang$core$Basics$not(pkg2.deprecated)),
+							compareBool(
+								_elm_lang$core$Basics$not(pkg1.deprecated)));
+						var current = A2(
+							_elm_lang$core$Basics$compare,
+							compareBool(pkg2.is_current),
+							compareBool(pkg1.is_current));
+						var _p2 = dep;
+						if (_p2.ctor === 'EQ') {
+							var _p3 = current;
+							if (_p3.ctor === 'EQ') {
+								return stars;
 							} else {
-								return dep;
+								return current;
 							}
-						}),
-					_p4.packages));
+						} else {
+							return dep;
+						}
+					}),
+				_p4.packages);
 			return {
 				ctor: '_Tuple2',
 				_0: _elm_lang$core$Native_Utils.update(
@@ -9152,14 +9165,44 @@ var _mdgriffith$elm_package_skimmer$Main$viewToolbar = F2(
 						]),
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_elm_lang$html$Html$text('elm package'),
 							A2(
-							_elm_lang$html$Html$br,
+							_elm_lang$html$Html$img,
 							_elm_lang$core$Native_List.fromArray(
-								[]),
+								[
+									_elm_lang$html$Html_Attributes$class('logo-svg'),
+									_elm_lang$html$Html_Attributes$src('elm_package_logo-grey.svg')
+								]),
 							_elm_lang$core$Native_List.fromArray(
 								[])),
-							_elm_lang$html$Html$text('skimmer')
+							A2(
+							_elm_lang$html$Html$span,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$class('logo-text')
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									A2(
+									_elm_lang$html$Html$span,
+									_elm_lang$core$Native_List.fromArray(
+										[
+											_elm_lang$html$Html_Attributes$class('elm-name')
+										]),
+									_elm_lang$core$Native_List.fromArray(
+										[
+											_elm_lang$html$Html$text('elm')
+										])),
+									A2(
+									_elm_lang$html$Html$span,
+									_elm_lang$core$Native_List.fromArray(
+										[
+											_elm_lang$html$Html_Attributes$class('package-skimmer')
+										]),
+									_elm_lang$core$Native_List.fromArray(
+										[
+											_elm_lang$html$Html$text('package skimmer')
+										]))
+								]))
 						])),
 					A2(
 					_elm_lang$html$Html$input,
@@ -9182,7 +9225,7 @@ var _mdgriffith$elm_package_skimmer$Main$viewToolbar = F2(
 					_elm_lang$core$Native_List.fromArray(
 						[
 							_elm_lang$html$Html$text(
-							A2(_elm_lang$core$Basics_ops['++'], 'Data updated on ', refreshed))
+							A2(_elm_lang$core$Basics_ops['++'], 'updated on ', refreshed))
 						]))
 				]));
 	});
