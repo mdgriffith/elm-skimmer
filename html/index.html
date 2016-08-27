@@ -22,8 +22,10 @@
                 color: rgb(234,21,122);
             }
             .info {
-                margin: 15px 0;
+                margin: 5px 0;
                 color:#CCC;
+                /*width: 578px;*/
+                text-align: center;
             }
             .metrics {
                 height:100px;
@@ -38,8 +40,50 @@
                 margin:2px 5px;
 
             }
-            .package {
+            
+            .sidebar {
                 width: 350px;
+                height: auto;
+                background-color: white;
+                padding: 30px;
+                margin: 15px;
+                border-radius: 5px;
+                position:relative;
+                box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
+                flex:1;
+                
+            }
+ 
+            
+            
+
+            .packages {
+                display:flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                z-index:100;
+            }
+            .standard-package-list {
+                display:flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .standard-package-list h2 {
+                margin:0;
+                font-size:1.2rem;
+            }
+            ul.side-package-list {
+                display:flex;
+                flex-direction: column;
+                flex-wrap: wrap;
+                height:204px;
+                padding-bottom:0px;
+                margin-bottom:0;
+
+            }
+            .package {
+                width: 375px;
                 height: auto;
                 background-color: white;
                 padding: 30px;
@@ -48,7 +92,10 @@
                 position:relative;
                 box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
                 overflow:hidden;
-
+            }
+            .package .summary {
+                padding:20px 0;
+                padding-top:10px;
             }
             .package-svg {
                 width:120px;
@@ -57,29 +104,32 @@
                 right:-1px;
                 transform: scaleX(-1) scaleY(-1);
             }
-            .sidebar {
-                /*float:left;*/
-                width: 350px;
-                height: auto;
-                background-color: white;
-                padding: 30px;
-                margin: 15px;
-                border-radius: 5px;
-                position:relative;
-                box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
-                
+            .package-svg-opposite {
+                width:120px;
+                position:absolute;
+                bottom:-13px;
+                left:-10px;
+                transform: scaleY(-1);
             }
- 
-            .package .summary {
-                padding:20px 0;
+            .package-svg-top-right {
+                width:120px;
+                position:absolute;
+                top:-13px;
+                right:-10px;
+                transform: scaleX(-1);
             }
-            .packages {
-                display:flex;
-                flex-direction: row;
-                flex-wrap: wrap;
-                justify-content: center;
-                z-index:100;
+            .package-svg-top-left {
+                width:120px;
+                position:absolute;
+                top:-13px;
+                left:-10px;
             }
+            h1.name {
+                padding-bottom:10px;
+            }
+            
+
+
             i.fa {
                 width:16px;
                 text-align:center;
@@ -92,57 +142,83 @@
                 display:flex;
                 flex-direction: row;
                 position:relative;
-                padding:20px;
+                padding:50px 20px;
                 justify-content: center;
                 z-index:0;
 
             }
             .search {
                 margin:0 15px;
-                width: 578px;
+                /*width: 578px;*/
                 font-size: 1.5em;
                 padding: 10px;
                 outline: none;
                 border: 1px solid #eeeeee;
                 border-radius: 8px;
                 z-index:100;
-
+                min-width:325px;
+                
             }
+            .searchbar {
+                flex:3;
+                background-color: rgba(247,247,247, 0.9);
+                border-radius:3px;
+                z-index:200;
+                text-align:center;
+            }
+
             ul {
                 list-style-type: none;
+                padding:3px;
+                margin-right:15px;
+                padding-bottom:15px;
+            }
+            .indent {
+                padding-left:10px;
             }
             .logo {
-                width: 297px;
+                /*width: 297px;*/
                 z-index:100;
+                flex:0;
             }
             .logo-svg {
                 position:absolute;
-                top:0;
+                top:-2px;
                 left:0;
                 z-index:0;
-                width:340px;
+                width:450px;
                 height:auto;
             }
             .logo-text {
                 z-index: 100;
-                position: absolute;
-                left: 38px;
-                top: 4px;
+                display:inline-block;
+                margin:15px;
+                position: relative;
+                top: 5px;
+                /*position: absolute;*/
+                /*left: 66px;*/
+                /*top: 9px;*/
             }
             .logo-text .elm-name {
-                font-size: 1.6rem;
-                line-height: 0.8rem;
+                font-size: 2.0rem;
+                line-height: 0.5em;
             }
             .logo-text .package-skimmer {
-                font-size: 0.8rem;
+                font-size: 1.0rem;
                 width: 50px;
                 position: relative;
                 display: inline-block;
-                line-height: 0.8rem;
+                line-height: 1.0em;
                 margin-left:5px;
             }
-            .sidebar .top-header {
-                margin-top:0;
+            .deprecation-warning {
+                display:inline-block;
+                position:relative;
+                background-color:#C82829;
+                color:white;
+                border-radius:3px;
+                padding:5px 10px;
+                margin:5px 0;
             }
 
       

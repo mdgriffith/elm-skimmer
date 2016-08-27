@@ -152,7 +152,6 @@ view : Model -> Html Msg
 view model =
     div []
         [ viewToolbar model.retrieved model.query
-          --, div [] [viewSidebar]
         , viewPackages (searchFor model.query model.packages)
         ]
 
@@ -161,21 +160,25 @@ viewToolbar : String -> String -> Html Msg
 viewToolbar refreshed query =
     div [ class "toolbar" ]
         [ span [ class "logo" ]
-            [ img [ class "logo-svg", src "elm_package_logo-grey.svg" ] []
-            , span [ class "logo-text" ]
+            [ img [ class "logo-svg", src "elm_package_logo.svg" ] []
+            ]
+        , div [ style [ ( "flex", "1" ) ] ] []
+        , div [ class "searchbar" ]
+            [ span [ class "logo-text" ]
                 [ span [ class "elm-name" ] [ text "elm" ]
                 , span [ class "package-skimmer" ] [ text "package skimmer" ]
                 ]
+            , input
+                [ class "search"
+                , placeholder "Search"
+                , value query
+                , onInput Query
+                , autofocus True
+                ]
+                []
+            , div [ class "info" ] [ text <| "updated on " ++ refreshed ]
             ]
-        , input
-            [ class "search"
-            , placeholder "Search"
-            , value query
-            , onInput Query
-            , autofocus True
-            ]
-            []
-        , span [ class "info" ] [ text <| "updated on " ++ refreshed ]
+        , div [ style [ ( "flex", "1" ) ] ] []
         ]
 
 
@@ -191,8 +194,8 @@ viewPackages pkgs =
                 [ class "package"
                 ]
                 [ h1 [ class "name" ] [ a [ href <| "http://package.elm-lang.org/packages/" ++ pkg.name ++ "/latest" ] [ text pkg.name ] ]
-                , div [ class "summary" ] [ text <| pkg.summary ]
                 , deprecationWarning pkg.deprecated
+                , div [ class "summary" ] [ text <| pkg.summary ]
                 , div [ class "metrics" ]
                     [ iconCount "star" "stars" pkg.stars
                     , iconCount "code-fork" "forks" pkg.forks
@@ -217,58 +220,66 @@ viewPackages pkgs =
                     ]
                 ]
     in
-        div [ class "packages" ]
-            (viewSidebar :: List.map viewPkg pkgs)
+        div [ class "packages" ] (viewSidebar ++ List.map viewPkg pkgs)
 
 
-viewSidebar : Html Msg
+viewSidebar : List (Html Msg)
 viewSidebar =
-    div [ class "sidebar" ]
-        [ h2 [ class "top-header" ] [ text "Resources" ]
-        , ul []
-            [ li [] [ a [] [ text "Fancy Search" ] ]
-            , li [] [ a [] [ text "Using Packages" ] ]
-            , li [] [ a [] [ text "API Design Guidelines" ] ]
-            , li [] [ a [] [ text "Write great docs" ] ]
-            , li [] [ a [] [ text "Preview your docs" ] ]
-            , li [] [ a [] [ text "Elm Website" ] ]
-            ]
-        , h2 [] [ text "Standard Packages" ]
-        , ul []
-            [ li []
-                [ text "General"
-                , ul []
-                    [ li [] [ a [] [ text "core" ] ]
-                    ]
-                ]
-            , li []
-                [ text "Rendering"
-                , ul []
-                    [ li [] [ a [] [ text "html" ] ]
-                    , li [] [ a [] [ text "svg" ] ]
-                    , li [] [ a [] [ text "markdown" ] ]
-                    ]
-                ]
-            , li []
-                [ text "Effects"
-                , ul []
-                    [ li [] [ a [] [ text "http" ] ]
-                    , li [] [ a [] [ text "geolocation" ] ]
-                    , li [] [ a [] [ text "navigation" ] ]
-                    , li [] [ a [] [ text "page-visibility" ] ]
-                    , li [] [ a [] [ text "websocket" ] ]
-                    ]
-                ]
-            , li []
-                [ text "User Input"
-                , ul []
-                    [ li [] [ a [] [ text "mouse" ] ]
-                    , li [] [ a [] [ text "window" ] ]
-                    , li [] [ a [] [ text "keyboard" ] ]
-                    ]
+    [ div [ class "package standard-package-list" ]
+        [ div []
+            [ h2 [] [ text "Resources" ]
+            , ul []
+                [ li [] [ a [] [ text "Fancy Search" ] ]
+                , li [] [ a [] [ text "Using Packages" ] ]
+                , li [] [ a [] [ text "Write great docs" ] ]
+                , li [] [ a [] [ text "Preview your docs" ] ]
+                , li [] [ a [] [ text "API Design Guidelines" ] ]
+                , li [] [ a [] [ text "Elm Website" ] ]
                 ]
             ]
+        , div []
+            [ h2 [] [ text "Standard Packages" ]
+            , ul [ class "side-package-list" ]
+                [ li []
+                    [ text "General"
+                    , ul []
+                        [ li [ class "indent" ] [ a [] [ text "core" ] ]
+                        ]
+                    ]
+                , li []
+                    [ text "Effects"
+                    , ul []
+                        [ li [ class "indent" ] [ a [] [ text "http" ] ]
+                        , li [ class "indent" ] [ a [] [ text "geolocation" ] ]
+                        , li [ class "indent" ] [ a [] [ text "navigation" ] ]
+                        , li [ class "indent" ] [ a [] [ text "page-visibility" ] ]
+                        , li [ class "indent" ] [ a [] [ text "websocket" ] ]
+                        ]
+                    ]
+                , li []
+                    [ text "Rendering"
+                    , ul []
+                        [ li [ class "indent" ] [ a [] [ text "html" ] ]
+                        , li [ class "indent" ] [ a [] [ text "svg" ] ]
+                        , li [ class "indent" ] [ a [] [ text "markdown" ] ]
+                        ]
+                    ]
+                , li []
+                    [ text "User Input"
+                    , ul []
+                        [ li [ class "indent" ] [ a [] [ text "mouse" ] ]
+                        , li [ class "indent" ] [ a [] [ text "window" ] ]
+                        , li [ class "indent" ] [ a [] [ text "keyboard" ] ]
+                        ]
+                    ]
+                ]
+            ]
+        , img [ class "package-svg", src "elm_package_logo_gold.svg" ] []
+        , img [ class "package-svg-opposite", src "elm_package_logo_green.svg" ] []
+        , img [ class "package-svg-top-right", src "elm_package_logo_purple.svg" ] []
+        , img [ class "package-svg-top-left", src "elm_package_logo_blue.svg" ] []
         ]
+    ]
 
 
 iconCount : String -> String -> Int -> Html Msg
