@@ -99,7 +99,14 @@ def get_github_data():
             wait_for_reset_if_necessary(has_examples_dir.headers)
 
             # Retrieve Elm Package Info
-            elm_package = requests.get(elm_package_file.format(package=pkg["name"]), params=credentials)
+            for x in range(5):
+                try:
+                    elm_package = requests.get(elm_package_file.format(package=pkg["name"]), params=credentials)
+                    break
+                except:
+                    print "File retrieval timed out, trying in 5 seconds."
+                    time.sleep(5)
+
             if elm_package.status_code < 300 and elm_package.status_code >= 200:
                 try:
                     github_data["elm_package"] = json.loads(elm_package.content)
@@ -194,14 +201,21 @@ def extract_metrics():
 
 
     with open("metrics/current.json", "w") as INDEX:
-        INDEX.write(json.dumps({'retrieved':str(now), 'packages':packages}, indent=4))
+        INDEX.write(json.dumps({'retrieved':str(now), 'packages':packages}, indent=None))
 
 
+def render_template():
+    with open("metrics/current.json") as PACKAGES:
+        with open("template.html") as TEMPLATE:
+            with open("../html/index.html", "w") as TARGET:
+                template = TEMPLATE.read()
+                TARGET.write(template.format(package_data=PACKAGES.read()))
 
 
 
 
 if __name__ == "__main__":
-    # get_elm_package_index()
-    # get_github_data()
+    get_elm_package_index()
+    get_github_data()
     extract_metrics()
+    render_template()

@@ -6,6 +6,8 @@ import Html.Events exposing (..)
 import Html.App
 import Time exposing (Time, second)
 import String
+import Svg
+import Svg.Attributes
 
 
 main =
@@ -42,7 +44,12 @@ type alias Package =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { retrieved = "Never", packages = [], query = "" }, Cmd.none )
+    ( { retrieved = "never"
+      , packages = []
+      , query = ""
+      }
+    , Cmd.none
+    )
 
 
 type Msg
@@ -160,10 +167,10 @@ viewToolbar : String -> String -> Html Msg
 viewToolbar refreshed query =
     div [ class "toolbar" ]
         [ span [ class "logo" ]
-            [ img [ class "logo-svg", src "elm_package_logo.svg" ] []
+            [ cornerStone "logo-svg" AllColors
             ]
         , div [ style [ ( "flex", "1" ) ] ] []
-        , div [ class "searchbar" ]
+        , div [ class "search-container" ]
             [ span [ class "logo-text" ]
                 [ span [ class "elm-name" ] [ text "elm" ]
                 , span [ class "package-skimmer" ] [ text "package skimmer" ]
@@ -176,14 +183,10 @@ viewToolbar refreshed query =
                 , autofocus True
                 ]
                 []
-            , div [ class "info" ] [ text <| "updated on " ++ refreshed ]
+            , div [ class "last-updated" ] [ text <| "updated on " ++ refreshed ]
             ]
         , div [ style [ ( "flex", "1" ) ] ] []
         ]
-
-
-(=>) =
-    (,)
 
 
 viewPackages : List Package -> Html Msg
@@ -216,7 +219,7 @@ viewPackages pkgs =
                                 [ i [ class <| "fa fa-legal" ] []
                                 , text <| " " ++ license ++ " license"
                                 ]
-                    , img [ class "package-svg", src "elm_package_logo.svg" ] []
+                    , cornerStone "package-svg-bottom-right" AllColors
                     ]
                 ]
     in
@@ -274,10 +277,14 @@ viewSidebar =
                     ]
                 ]
             ]
-        , img [ class "package-svg", src "elm_package_logo_gold.svg" ] []
-        , img [ class "package-svg-opposite", src "elm_package_logo_green.svg" ] []
-        , img [ class "package-svg-top-right", src "elm_package_logo_purple.svg" ] []
-        , img [ class "package-svg-top-left", src "elm_package_logo_blue.svg" ] []
+        , cornerStone "package-svg-bottom-right" Gold
+        , cornerStone "package-svg-bottom-left" Green
+        , cornerStone "package-svg-top-right" Purple
+        , cornerStone "package-svg-top-left" Blue
+          --, img [ class "package-svg-bottom-right", src "elm_package_logo_gold.svg" ] []
+          --, img [ class "package-svg-bottom-left", src "elm_package_logo_green.svg" ] []
+          --, img [ class "package-svg-top-right", src "elm_package_logo_purple.svg" ] []
+          --, img [ class "package-svg-top-left", src "elm_package_logo_blue.svg" ] []
         ]
     ]
 
@@ -313,4 +320,109 @@ has label metric =
         span [ class "metric" ]
             [ i [ class <| "fa fa-square-o" ] []
             , text <| " " ++ label
+            ]
+
+
+type CornerStoneColoring
+    = AllColors
+    | Gold
+    | Green
+    | Purple
+    | Blue
+
+
+cornerStone : String -> CornerStoneColoring -> Html Msg
+cornerStone cls coloring =
+    let
+        blue =
+            "#60B5CC"
+
+        gold =
+            "#F0AD00"
+
+        purple =
+            "#5A6378"
+
+        green =
+            "#7FD13B"
+
+        ( color1, color2, color3, color4 ) =
+            case coloring of
+                AllColors ->
+                    ( blue, gold, purple, green )
+
+                Green ->
+                    ( green, green, green, green )
+
+                Gold ->
+                    ( gold, gold, gold, gold )
+
+                Purple ->
+                    ( purple, purple, purple, purple )
+
+                Blue ->
+                    ( blue, blue, blue, blue )
+    in
+        div [ class cls ]
+            [ Svg.svg [ Svg.Attributes.version "1.1", Svg.Attributes.x "0px", Svg.Attributes.y "0px", Svg.Attributes.viewBox "0 0 323.1 323" ]
+                [ Svg.rect
+                    [ Svg.Attributes.x "65.6"
+                    , Svg.Attributes.y "66.5"
+                    , Svg.Attributes.transform "matrix(2.256997e-03 -1 1 2.256997e-03 -1.082 158.3655)"
+                    , style [ ( "fill", color1 ) ]
+                    , Svg.Attributes.width "26.5"
+                    , Svg.Attributes.height "26.4"
+                    ]
+                    []
+                , Svg.polygon
+                    [ style [ ( "fill", color1 ) ]
+                    , Svg.Attributes.points "62.2,62.4 0,0 0,124.5 "
+                    ]
+                    []
+                , Svg.polygon
+                    [ style [ ( "fill", color2 ) ]
+                    , Svg.Attributes.points "3.2,126.2 20.2,159.6 20.2,109.2 "
+                    ]
+                    []
+                , Svg.polygon
+                    [ style [ ( "fill", color1 ) ]
+                    , Svg.Attributes.points "161,0 131,30 299.7,0 "
+                    ]
+                    []
+                , Svg.polygon
+                    [ style [ ( "fill", color3 ) ]
+                    , Svg.Attributes.points "20.2,169.2 0,129.3 0,293 "
+                    ]
+                    []
+                , Svg.polygon
+                    [ style [ ( "fill", color4 ) ]
+                    , Svg.Attributes.points "53.3,96.4 32.9,96.4 23.6,105.8 23.6,130.7 "
+                    ]
+                    []
+                , Svg.polygon
+                    [ style [ ( "fill", color4 ) ]
+                    , Svg.Attributes.points "126,30 156,0 69.4,0 39.4,30 "
+                    ]
+                    []
+                , Svg.polygon
+                    [ style [ ( "fill", color2 ) ]
+                    , Svg.Attributes.points "34.6,30 64.6,0 4.6,0 "
+                    ]
+                    []
+                , Svg.polygon
+                    [ style [ ( "fill", color3 ) ]
+                    , Svg.Attributes.points "122.6,33.4 38,33.4 64.6,60 "
+                    ]
+                    []
+                , Svg.polygon
+                    [ style [ ( "fill", color4 ) ]
+                    , Svg.Attributes.points "92.1,63.6 92,51.5 64.8,63.6 "
+                    ]
+                    []
+                , Svg.polygon
+                    [ style [ ( "fill", color2 ) ]
+                    , Svg.Attributes.points "62.2,93 62.2,67.3 36.3,93 "
+                    ]
+                    []
+                ]
             ]

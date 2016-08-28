@@ -1,0 +1,238 @@
+<!doctype html>
+<html>
+    <head>
+        <script src="elm.js"></script>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+        <style type="text/css">
+            html, body {{
+                background-color: #f7f7f7;
+                font-family: 'Open Sans',  sans-serif;
+                font-size:14px;
+                margin:0px;
+
+            }}
+            a {{
+                color: #1184CE;
+                text-decoration: none;
+            }}
+            a:hover {{
+                text-decoration: underline;
+                color: rgb(234,21,122);
+            }}
+            .sidebar {{
+                width: 350px;
+                height: auto;
+                background-color: white;
+                padding: 30px;
+                margin: 15px;
+                border-radius: 5px;
+                position:relative;
+                box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
+                flex:1;
+                
+            }}
+            .packages {{
+                display:flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                z-index:100;
+            }}
+            .standard-package-list {{
+                display:flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }}
+            .standard-package-list h2 {{
+                margin:0;
+                font-size:1.2rem;
+            }}
+            ul.side-package-list {{
+                display:flex;
+                flex-direction: column;
+                flex-wrap: wrap;
+                height:204px;
+                padding-bottom:0px;
+                margin-bottom:0;
+
+            }}
+            i.fa {{
+                width:16px;
+                text-align:center;
+            }}
+            h1 {{
+                font-size: 1.3em;
+                margin: 0;
+            }}
+            .toolbar {{
+                display:flex;
+                flex-direction: row;
+                position:relative;
+                padding:50px 20px;
+                justify-content: center;
+                z-index:0;
+
+            }}
+            
+            .search-container {{
+                flex:3;
+                background-color: rgba(247,247,247, 0.9);
+                border-radius:3px;
+                z-index:200;
+                text-align:center;
+            }}
+            .search-container .search {{
+                margin:0 15px;
+                font-size: 1.5em;
+                padding: 10px;
+                outline: none;
+                border: 1px solid #eeeeee;
+                border-radius: 8px;
+                z-index:100;
+                min-width:325px;
+                
+            }}
+            .search-container .last-updated {{
+                margin: 5px 0;
+                color:#CCC;
+                text-align: center;
+            }}
+
+            ul {{
+                list-style-type: none;
+                padding:3px;
+                margin-right:15px;
+                padding-bottom:15px;
+            }}
+            .indent {{
+                padding-left:10px;
+            }}
+            .logo {{
+                z-index:100;
+                flex:0;
+            }}
+            .logo-svg {{
+                position:absolute;
+                top:-2px;
+                left:0;
+                z-index:0;
+                width:450px;
+                height:auto;
+            }}
+            .logo-text {{
+                z-index: 100;
+                display:inline-block;
+                margin:15px;
+                position: relative;
+                top: 5px;
+            }}
+            .logo-text .elm-name {{
+                font-size: 2.0rem;
+                line-height: 0.5em;
+            }}
+            .logo-text .package-skimmer {{
+                font-size: 1.0rem;
+                width: 50px;
+                position: relative;
+                display: inline-block;
+                line-height: 1.0em;
+                margin-left:5px;
+            }}
+
+
+            .package {{
+                width: 375px;
+                height: auto;
+                background-color: white;
+                padding: 30px;
+                margin: 15px;
+                border-radius: 5px;
+                position:relative;
+                box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
+                overflow:hidden;
+            }}
+            .package .summary {{
+                padding:20px 0;
+                padding-top:10px;
+            }}
+            .package-svg-bottom-right {{
+                width:120px;
+                position:absolute;
+                bottom:-4px;
+                right:-1px;
+                transform: scaleX(-1) scaleY(-1);
+            }}
+            .package-svg-bottom-left {{
+                width:120px;
+                position:absolute;
+                bottom:-13px;
+                left:-10px;
+                transform: scaleY(-1);
+            }}
+            .package-svg-top-right {{
+                width:120px;
+                position:absolute;
+                top:-13px;
+                right:-10px;
+                transform: scaleX(-1);
+            }}
+            .package-svg-top-left {{
+                width:120px;
+                position:absolute;
+                top:-13px;
+                left:-10px;
+            }}
+            .metrics {{
+                height:100px;
+                display:flex;
+                flex-direction: column;
+                flex-wrap: wrap;
+
+            }}
+            .metrics .metric {{
+                position:relative;
+                width:170px;
+                margin:2px 5px;
+
+            }}
+
+            h1.name {{
+                padding-bottom:10px;
+            }}
+
+            .deprecation-warning {{
+                display:inline-block;
+                position:relative;
+                background-color:#C82829;
+                color:white;
+                border-radius:3px;
+                padding:5px 10px;
+                margin:5px 0;
+            }}
+        </style>
+    </head>
+    <body id="elm">
+        <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+    </body>
+    <script>
+      (function(i,s,o,g,r,a,m){{i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){{
+      (i[r].q=i[r].q||[]).push(arguments)}},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      }})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-83241160-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    <script type="text/javascript">
+
+        var data = {package_data}
+
+        var element = document.getElementById("elm");
+        var app = Elm.Main.embed(element);
+        app.ports.packages.send(data);
+    </script>
+</html>
