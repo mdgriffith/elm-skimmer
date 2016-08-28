@@ -93,17 +93,17 @@ update msg model =
                                 stars =
                                     compare pkg2.stars pkg1.stars
                             in
-                                case dep of
+                                case current of
                                     EQ ->
-                                        case current of
+                                        case dep of
                                             EQ ->
                                                 stars
 
                                             _ ->
-                                                current
+                                                dep
 
                                     _ ->
-                                        dep
+                                        current
                         )
                         packages.packages
             in

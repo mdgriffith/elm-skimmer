@@ -9031,16 +9031,16 @@ var _mdgriffith$elm_package_skimmer$Main$update = F2(
 							_elm_lang$core$Basics$compare,
 							boolAsInt(pkg2.is_current),
 							boolAsInt(pkg1.is_current));
-						var _p3 = dep;
+						var _p3 = current;
 						if (_p3.ctor === 'EQ') {
-							var _p4 = current;
+							var _p4 = dep;
 							if (_p4.ctor === 'EQ') {
 								return stars;
 							} else {
-								return current;
+								return dep;
 							}
 						} else {
-							return dep;
+							return current;
 						}
 					}),
 				_p5.packages);
@@ -9252,7 +9252,7 @@ var _mdgriffith$elm_package_skimmer$Main$viewSidebar = _elm_lang$core$Native_Lis
 											[]),
 										_elm_lang$core$Native_List.fromArray(
 											[
-												_elm_lang$html$Html$text('Using & Publishing Packages')
+												_elm_lang$html$Html$text('Using Packages')
 											]))
 									])),
 								A2(
