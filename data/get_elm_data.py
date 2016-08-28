@@ -193,9 +193,17 @@ def extract_metrics():
         if description is None:
             description = ""
 
+        # check github summary for deprecation
         if "deprecated" in description.lower():
             pkg["deprecated"] = True
             redirect = redirect_matcher.search(description)
+            if redirect is not None:
+                pkg["deprecation_redirect"] = remove_github_prefix(redirect.group(1))
+
+        # check elm-package summary for deprecations
+        if "deprecated" in pkg["summary"].lower():
+            pkg["deprecated"] = True
+            redirect = redirect_matcher.search(pkg["summary"])
             if redirect is not None:
                 pkg["deprecation_redirect"] = remove_github_prefix(redirect.group(1))
 
