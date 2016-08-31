@@ -3,6 +3,7 @@ import json
 import time
 import datetime
 import re
+import pprint
 
 all_packages = "http://package.elm-lang.org/all-packages"
 
@@ -46,7 +47,7 @@ def wait_for_reset_if_necessary(headers):
             time.sleep(waitFor)
 
 
-def get_github_data():
+def get_elm_package_github_data():
 
     credentials = None
     with open('credentials/github.json') as GITHUB:
@@ -220,10 +221,36 @@ def render_template():
                 TARGET.write(template.format(package_data=PACKAGES.read()))
 
 
+def get_top_elm_repos():
+    credentials = None
+    with open('credentials/github.json') as GITHUB:
+        credentials = json.loads(GITHUB.read())
+    if credentials is None:
+        raise "No github credentials!"
+
+    packages = []
+    with open("primary/package-index.json") as INDEX:
+        index = INDEX.read()
+        packages = json.loads(index)
+    package_names = [pkg["name"] for pkg in packages]
+
+    search = "https://api.github.com/search/repositories"
+    credentials.update({'q':'language:elm', 'sort':'stars', 'order':'desc'})
+
+    projects_response = requests.get(search, params=credentials)
+    if projects_response.status_code < 300 and projects_response.status_code >= 200:
+        projects = json.loads(projects_response.content)
+        only_nonpackages = [proj for proj in projects["items"] if proj["full_name"] not in package_names ]
+        print [proj["full_name"] for proj in only_nonpackages]
+    else:
+        print "error retrieving projects"
+
+
 
 
 if __name__ == "__main__":
+    # get_top_elm_repos()
     get_elm_package_index()
-    get_github_data()
+    get_elm_package_github_data()
     extract_metrics()
     render_template()
