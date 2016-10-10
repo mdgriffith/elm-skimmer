@@ -8723,7 +8723,12 @@ var _mdgriffith$elm_package_skimmer$Main$cornerStone = F2(
 			_elm_lang$html$Html$div,
 			_elm_lang$core$Native_List.fromArray(
 				[
-					_elm_lang$html$Html_Attributes$class(cls)
+					_elm_lang$html$Html_Attributes$class(cls),
+					_elm_lang$html$Html_Attributes$style(
+					_elm_lang$core$Native_List.fromArray(
+						[
+							{ctor: '_Tuple2', _0: 'z-index', _1: '0'}
+						]))
 				]),
 			_elm_lang$core$Native_List.fromArray(
 				[
@@ -9205,10 +9210,20 @@ var _mdgriffith$elm_package_skimmer$Main$viewSidebar = _elm_lang$core$Native_Lis
 			]),
 		_elm_lang$core$Native_List.fromArray(
 			[
+				A2(_mdgriffith$elm_package_skimmer$Main$cornerStone, 'package-svg-bottom-right', _mdgriffith$elm_package_skimmer$Main$Gold),
+				A2(_mdgriffith$elm_package_skimmer$Main$cornerStone, 'package-svg-bottom-left', _mdgriffith$elm_package_skimmer$Main$Green),
+				A2(_mdgriffith$elm_package_skimmer$Main$cornerStone, 'package-svg-top-right', _mdgriffith$elm_package_skimmer$Main$Purple),
+				A2(_mdgriffith$elm_package_skimmer$Main$cornerStone, 'package-svg-top-left', _mdgriffith$elm_package_skimmer$Main$Blue),
 				A2(
 				_elm_lang$html$Html$div,
 				_elm_lang$core$Native_List.fromArray(
-					[]),
+					[
+						_elm_lang$html$Html_Attributes$style(
+						_elm_lang$core$Native_List.fromArray(
+							[
+								{ctor: '_Tuple2', _0: 'z-index', _1: '10'}
+							]))
+					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
 						A2(
@@ -9234,7 +9249,9 @@ var _mdgriffith$elm_package_skimmer$Main$viewSidebar = _elm_lang$core$Native_Lis
 										A2(
 										_elm_lang$html$Html$a,
 										_elm_lang$core$Native_List.fromArray(
-											[]),
+											[
+												_elm_lang$html$Html_Attributes$href('http://klaftertief.github.io/elm-search/')
+											]),
 										_elm_lang$core$Native_List.fromArray(
 											[
 												_elm_lang$html$Html$text('Fancy Search')
@@ -9249,7 +9266,9 @@ var _mdgriffith$elm_package_skimmer$Main$viewSidebar = _elm_lang$core$Native_Lis
 										A2(
 										_elm_lang$html$Html$a,
 										_elm_lang$core$Native_List.fromArray(
-											[]),
+											[
+												_elm_lang$html$Html_Attributes$href('https://github.com/elm-lang/elm-package/blob/master/README.md')
+											]),
 										_elm_lang$core$Native_List.fromArray(
 											[
 												_elm_lang$html$Html$text('Using Packages')
@@ -9264,7 +9283,9 @@ var _mdgriffith$elm_package_skimmer$Main$viewSidebar = _elm_lang$core$Native_Lis
 										A2(
 										_elm_lang$html$Html$a,
 										_elm_lang$core$Native_List.fromArray(
-											[]),
+											[
+												_elm_lang$html$Html_Attributes$href('http://package.elm-lang.org/help/documentation-format')
+											]),
 										_elm_lang$core$Native_List.fromArray(
 											[
 												_elm_lang$html$Html$text('Write great docs')
@@ -9279,7 +9300,9 @@ var _mdgriffith$elm_package_skimmer$Main$viewSidebar = _elm_lang$core$Native_Lis
 										A2(
 										_elm_lang$html$Html$a,
 										_elm_lang$core$Native_List.fromArray(
-											[]),
+											[
+												_elm_lang$html$Html_Attributes$href('http://package.elm-lang.org/help/docs-preview')
+											]),
 										_elm_lang$core$Native_List.fromArray(
 											[
 												_elm_lang$html$Html$text('Preview your docs')
@@ -9294,7 +9317,9 @@ var _mdgriffith$elm_package_skimmer$Main$viewSidebar = _elm_lang$core$Native_Lis
 										A2(
 										_elm_lang$html$Html$a,
 										_elm_lang$core$Native_List.fromArray(
-											[]),
+											[
+												_elm_lang$html$Html_Attributes$href('http://package.elm-lang.org/help/design-guidelines')
+											]),
 										_elm_lang$core$Native_List.fromArray(
 											[
 												_elm_lang$html$Html$text('API Design Guidelines')
@@ -9309,7 +9334,9 @@ var _mdgriffith$elm_package_skimmer$Main$viewSidebar = _elm_lang$core$Native_Lis
 										A2(
 										_elm_lang$html$Html$a,
 										_elm_lang$core$Native_List.fromArray(
-											[]),
+											[
+												_elm_lang$html$Html_Attributes$href('http://elm-lang.org')
+											]),
 										_elm_lang$core$Native_List.fromArray(
 											[
 												_elm_lang$html$Html$text('Elm Website')
@@ -9320,7 +9347,13 @@ var _mdgriffith$elm_package_skimmer$Main$viewSidebar = _elm_lang$core$Native_Lis
 				A2(
 				_elm_lang$html$Html$div,
 				_elm_lang$core$Native_List.fromArray(
-					[]),
+					[
+						_elm_lang$html$Html_Attributes$style(
+						_elm_lang$core$Native_List.fromArray(
+							[
+								{ctor: '_Tuple2', _0: 'z-index', _1: '10'}
+							]))
+					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
 						A2(
@@ -9363,7 +9396,9 @@ var _mdgriffith$elm_package_skimmer$Main$viewSidebar = _elm_lang$core$Native_Lis
 														A2(
 														_elm_lang$html$Html$a,
 														_elm_lang$core$Native_List.fromArray(
-															[]),
+															[
+																_elm_lang$html$Html_Attributes$href('/packages/elm-lang/core/latest')
+															]),
 														_elm_lang$core$Native_List.fromArray(
 															[
 																_elm_lang$html$Html$text('core')
@@ -9395,7 +9430,9 @@ var _mdgriffith$elm_package_skimmer$Main$viewSidebar = _elm_lang$core$Native_Lis
 														A2(
 														_elm_lang$html$Html$a,
 														_elm_lang$core$Native_List.fromArray(
-															[]),
+															[
+																_elm_lang$html$Html_Attributes$href('/packages/evancz/elm-http/latest')
+															]),
 														_elm_lang$core$Native_List.fromArray(
 															[
 																_elm_lang$html$Html$text('http')
@@ -9604,11 +9641,7 @@ var _mdgriffith$elm_package_skimmer$Main$viewSidebar = _elm_lang$core$Native_Lis
 											]))
 									]))
 							]))
-					])),
-				A2(_mdgriffith$elm_package_skimmer$Main$cornerStone, 'package-svg-bottom-right', _mdgriffith$elm_package_skimmer$Main$Gold),
-				A2(_mdgriffith$elm_package_skimmer$Main$cornerStone, 'package-svg-bottom-left', _mdgriffith$elm_package_skimmer$Main$Green),
-				A2(_mdgriffith$elm_package_skimmer$Main$cornerStone, 'package-svg-top-right', _mdgriffith$elm_package_skimmer$Main$Purple),
-				A2(_mdgriffith$elm_package_skimmer$Main$cornerStone, 'package-svg-top-left', _mdgriffith$elm_package_skimmer$Main$Blue)
+					]))
 			]))
 	]);
 var _mdgriffith$elm_package_skimmer$Main$AllColors = {ctor: 'AllColors'};
@@ -9772,12 +9805,6 @@ var _mdgriffith$elm_package_skimmer$Main$viewPackages = function (pkgs) {
 					_elm_lang$core$Native_List.fromArray(
 						[
 							A3(_mdgriffith$elm_package_skimmer$Main$iconCount, 'star', 'stars', pkg.stars),
-							A3(_mdgriffith$elm_package_skimmer$Main$iconCount, 'code-fork', 'forks', pkg.forks),
-							A3(_mdgriffith$elm_package_skimmer$Main$iconCount, 'eye', 'watchers', pkg.watchers),
-							A3(_mdgriffith$elm_package_skimmer$Main$iconCount, 'exclamation', 'open issues', pkg.open_issues),
-							A2(_mdgriffith$elm_package_skimmer$Main$has, 'tests', pkg.has_tests),
-							A2(_mdgriffith$elm_package_skimmer$Main$has, 'examples', pkg.has_examples),
-							A2(_mdgriffith$elm_package_skimmer$Main$has, '0.17 compatible', pkg.is_current),
 							function () {
 							var _p6 = pkg.license;
 							if (_p6.ctor === 'Nothing') {
@@ -9824,6 +9851,9 @@ var _mdgriffith$elm_package_skimmer$Main$viewPackages = function (pkgs) {
 										]));
 							}
 						}(),
+							A2(_mdgriffith$elm_package_skimmer$Main$has, '0.17 compatible', pkg.is_current),
+							A2(_mdgriffith$elm_package_skimmer$Main$has, 'tests', pkg.has_tests),
+							A2(_mdgriffith$elm_package_skimmer$Main$has, 'examples', pkg.has_examples),
 							A2(_mdgriffith$elm_package_skimmer$Main$cornerStone, 'package-svg-bottom-right', _mdgriffith$elm_package_skimmer$Main$AllColors)
 						]))
 				]));
@@ -9834,10 +9864,7 @@ var _mdgriffith$elm_package_skimmer$Main$viewPackages = function (pkgs) {
 			[
 				_elm_lang$html$Html_Attributes$class('packages')
 			]),
-		A2(
-			_elm_lang$core$Basics_ops['++'],
-			_mdgriffith$elm_package_skimmer$Main$viewSidebar,
-			A2(_elm_lang$core$List$map, viewPkg, pkgs)));
+		A2(_elm_lang$core$List$map, viewPkg, pkgs));
 };
 var _mdgriffith$elm_package_skimmer$Main$view = function (model) {
 	return A2(

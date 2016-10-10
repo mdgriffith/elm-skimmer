@@ -6,7 +6,7 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
         <style type="text/css">
             html, body {{
-                background-color: #f7f7f7;
+                background-color: #fff;
                 font-family: 'Open Sans',  sans-serif;
                 font-size:14px;
                 margin:0px;
@@ -15,10 +15,12 @@
             a {{
                 color: #1184CE;
                 text-decoration: none;
+                cursor: "pointer";
             }}
             a:hover {{
                 text-decoration: underline;
                 color: rgb(234,21,122);
+                cursor: "pointer";
             }}
             .sidebar {{
                 width: 350px;
@@ -30,7 +32,7 @@
                 position:relative;
                 box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
                 flex:1;
-                
+
             }}
             .packages {{
                 display:flex;
@@ -74,10 +76,10 @@
                 z-index:0;
 
             }}
-            
+
             .search-container {{
                 flex:3;
-                background-color: rgba(247,247,247, 0.9);
+                background-color: rgba(255,255,255, 0.9);
                 border-radius:3px;
                 z-index:200;
                 text-align:center;
@@ -87,11 +89,11 @@
                 font-size: 1.5em;
                 padding: 10px;
                 outline: none;
-                border: 1px solid #eeeeee;
+                border: 1px solid #ccc;
                 border-radius: 8px;
                 z-index:100;
                 min-width:325px;
-                
+
             }}
             .search-container .last-updated {{
                 margin: 5px 0;
@@ -151,6 +153,7 @@
                 position:relative;
                 box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
                 overflow:hidden;
+                border: 1px solid #ccc;
             }}
             .package .summary {{
                 padding:20px 0;

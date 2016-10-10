@@ -201,12 +201,6 @@ viewPackages pkgs =
                 , div [ class "summary" ] [ text <| pkg.summary ]
                 , div [ class "metrics" ]
                     [ iconCount "star" "stars" pkg.stars
-                    , iconCount "code-fork" "forks" pkg.forks
-                    , iconCount "eye" "watchers" pkg.watchers
-                    , iconCount "exclamation" "open issues" pkg.open_issues
-                    , has "tests" pkg.has_tests
-                    , has "examples" pkg.has_examples
-                    , has "0.17 compatible" pkg.is_current
                     , case pkg.license of
                         Nothing ->
                             div [ class "metric" ]
@@ -219,40 +213,50 @@ viewPackages pkgs =
                                 [ i [ class <| "fa fa-legal" ] []
                                 , text <| " " ++ license ++ " license"
                                 ]
+                      -- , iconCount "code-fork" "forks" pkg.forks
+                      -- , iconCount "eye" "watchers" pkg.watchers
+                      -- , iconCount "exclamation" "open issues" pkg.open_issues
+                    , has "0.17 compatible" pkg.is_current
+                    , has "tests" pkg.has_tests
+                    , has "examples" pkg.has_examples
                     , cornerStone "package-svg-bottom-right" AllColors
                     ]
                 ]
     in
-        div [ class "packages" ] (viewSidebar ++ List.map viewPkg pkgs)
+        div [ class "packages" ] (List.map viewPkg pkgs)
 
 
 viewSidebar : List (Html Msg)
 viewSidebar =
     [ div [ class "package standard-package-list" ]
-        [ div []
+        [ cornerStone "package-svg-bottom-right" Gold
+        , cornerStone "package-svg-bottom-left" Green
+        , cornerStone "package-svg-top-right" Purple
+        , cornerStone "package-svg-top-left" Blue
+        , div [ style [ ( "z-index", "10" ) ] ]
             [ h2 [] [ text "Resources" ]
             , ul []
-                [ li [] [ a [] [ text "Fancy Search" ] ]
-                , li [] [ a [] [ text "Using Packages" ] ]
-                , li [] [ a [] [ text "Write great docs" ] ]
-                , li [] [ a [] [ text "Preview your docs" ] ]
-                , li [] [ a [] [ text "API Design Guidelines" ] ]
-                , li [] [ a [] [ text "Elm Website" ] ]
+                [ li [] [ a [ href "http://klaftertief.github.io/elm-search/" ] [ text "Fancy Search" ] ]
+                , li [] [ a [ href "https://github.com/elm-lang/elm-package/blob/master/README.md" ] [ text "Using Packages" ] ]
+                , li [] [ a [ href "http://package.elm-lang.org/help/documentation-format" ] [ text "Write great docs" ] ]
+                , li [] [ a [ href "http://package.elm-lang.org/help/docs-preview" ] [ text "Preview your docs" ] ]
+                , li [] [ a [ href "http://package.elm-lang.org/help/design-guidelines" ] [ text "API Design Guidelines" ] ]
+                , li [] [ a [ href "http://elm-lang.org" ] [ text "Elm Website" ] ]
                 ]
             ]
-        , div []
+        , div [ style [ ( "z-index", "10" ) ] ]
             [ h2 [] [ text "Standard Packages" ]
             , ul [ class "side-package-list" ]
                 [ li []
                     [ text "General"
                     , ul []
-                        [ li [ class "indent" ] [ a [] [ text "core" ] ]
+                        [ li [ class "indent" ] [ a [ href "/packages/elm-lang/core/latest" ] [ text "core" ] ]
                         ]
                     ]
                 , li []
                     [ text "Effects"
                     , ul []
-                        [ li [ class "indent" ] [ a [] [ text "http" ] ]
+                        [ li [ class "indent" ] [ a [ href "/packages/evancz/elm-http/latest" ] [ text "http" ] ]
                         , li [ class "indent" ] [ a [] [ text "geolocation" ] ]
                         , li [ class "indent" ] [ a [] [ text "navigation" ] ]
                         , li [ class "indent" ] [ a [] [ text "page-visibility" ] ]
@@ -277,10 +281,6 @@ viewSidebar =
                     ]
                 ]
             ]
-        , cornerStone "package-svg-bottom-right" Gold
-        , cornerStone "package-svg-bottom-left" Green
-        , cornerStone "package-svg-top-right" Purple
-        , cornerStone "package-svg-top-left" Blue
           --, img [ class "package-svg-bottom-right", src "elm_package_logo_gold.svg" ] []
           --, img [ class "package-svg-bottom-left", src "elm_package_logo_green.svg" ] []
           --, img [ class "package-svg-top-right", src "elm_package_logo_purple.svg" ] []
@@ -363,7 +363,7 @@ cornerStone cls coloring =
                 Blue ->
                     ( blue, blue, blue, blue )
     in
-        div [ class cls ]
+        div [ class cls, style [ ( "z-index", "0" ) ] ]
             [ Svg.svg [ Svg.Attributes.version "1.1", Svg.Attributes.x "0px", Svg.Attributes.y "0px", Svg.Attributes.viewBox "0 0 323.1 323" ]
                 [ Svg.rect
                     [ Svg.Attributes.x "65.6"
