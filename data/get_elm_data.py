@@ -19,6 +19,7 @@ test_dir = "https://api.github.com/repos/{package}/contents/test?ref=master"
 tests_dir = "https://api.github.com/repos/{package}/contents/tests?ref=master"
 examples_dir = "https://api.github.com/repos/{package}/contents/examples?ref=master"
 elm_package_file = "https://raw.githubusercontent.com/{package}/master/elm-package.json?ref=master"
+download_file_location = "https://github.com/{package}/archive/master.zip"
 
 
 def get_elm_package_index():
@@ -45,6 +46,44 @@ def wait_for_reset_if_necessary(headers):
             waitFor = resetAt - now_epoch
             print "waiting for " + str(waitFor) + " seconds for limits to reset"
             time.sleep(waitFor)
+
+
+def download_file(url, local_filename):
+    # local_filename = url.split('/')[-1]
+    # NOTE the stream=True parameter
+    r = requests.get(url, stream=True)
+    with open(local_filename, 'wb') as f:
+        for chunk in r.iter_content(chunk_size=1024): 
+            if chunk: # filter out keep-alive new chunks
+                f.write(chunk)
+                #f.flush() commented by recommendation from J.F.Sebastian
+    wait_for_reset_if_necessary(r.headers)
+    return local_filename
+
+
+def download_elm_package_zip():
+
+    credentials = None
+    with open('credentials/github.json') as GITHUB:
+        credentials = json.loads(GITHUB.read())
+    if credentials is None:
+        raise "No github credentials!"
+
+    packages = []
+    with open("primary/package-index.json") as INDEX:
+        index = INDEX.read()
+        packages = json.loads(index)
+
+    print "retrieving github data"
+    total = len(packages)
+    full_pkg_data = {}
+    for i, pkg in enumerate(packages):
+        print str(i) + "/" + str(total) + " - Retriving github data for: " + str(pkg["name"])
+
+        download_file(download_file_location.format(package=pkg["name"]), "raw/{kebab}.zip".format(kebab=pkg["name"].replace("/", "@")))
+
+        time.sleep(0.1)
+
 
 
 def get_elm_package_github_data():
@@ -75,6 +114,10 @@ def get_elm_package_github_data():
         wait_for_reset_if_necessary(pkg_data.headers)
 
         if github_data:
+
+
+
+
             # Has Test Directory
             has_test_dir = requests.get(test_dir.format(package=pkg["name"]), params=credentials)
             if has_test_dir.status_code < 300 and has_test_dir.status_code >= 200:
@@ -91,6 +134,7 @@ def get_elm_package_github_data():
                     github_data["has_test_dir"] = False
                 wait_for_reset_if_necessary(has_test_dir.headers)
 
+
             # Has Examples Directory
             has_examples_dir = requests.get(examples_dir.format(package=pkg["name"]), params=credentials)
             if has_examples_dir.status_code < 300 and has_examples_dir.status_code >= 200:
@@ -98,6 +142,7 @@ def get_elm_package_github_data():
             else:
                 github_data["has_examples_dir"] = False
             wait_for_reset_if_necessary(has_examples_dir.headers)
+
 
             # Retrieve Elm Package Info
             for x in range(5):
@@ -117,9 +162,13 @@ def get_elm_package_github_data():
 
             else:
                 github_data["elm_package"] = {}
-            wait_for_reset_if_necessary(elm_package.headers)
+
+
 
             full_pkg_data[pkg["name"]] = github_data
+            wait_for_reset_if_necessary(elm_package.headers)
+
+            
 
         time.sleep(0.1)
 
@@ -249,7 +298,8 @@ def get_top_elm_repos():
 
 
 if __name__ == "__main__":
-    # get_top_elm_repos()
+    # download_elm_package_zip()
+    ## get_top_elm_repos()
     get_elm_package_index()
     get_elm_package_github_data()
     extract_metrics()

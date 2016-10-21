@@ -7,3 +7,4 @@ src/Data.elm
 elm-stuff
 deploy.sh
 .DS_Store
+*.zip
