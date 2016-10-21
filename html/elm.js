@@ -2709,6 +2709,172 @@ var _elm_lang$core$Char$isHexDigit = function ($char) {
 		$char));
 };
 
+var _elm_lang$core$Color$fmod = F2(
+	function (f, n) {
+		var integer = _elm_lang$core$Basics$floor(f);
+		return (_elm_lang$core$Basics$toFloat(
+			A2(_elm_lang$core$Basics_ops['%'], integer, n)) + f) - _elm_lang$core$Basics$toFloat(integer);
+	});
+var _elm_lang$core$Color$rgbToHsl = F3(
+	function (red, green, blue) {
+		var b = _elm_lang$core$Basics$toFloat(blue) / 255;
+		var g = _elm_lang$core$Basics$toFloat(green) / 255;
+		var r = _elm_lang$core$Basics$toFloat(red) / 255;
+		var cMax = A2(
+			_elm_lang$core$Basics$max,
+			A2(_elm_lang$core$Basics$max, r, g),
+			b);
+		var cMin = A2(
+			_elm_lang$core$Basics$min,
+			A2(_elm_lang$core$Basics$min, r, g),
+			b);
+		var c = cMax - cMin;
+		var lightness = (cMax + cMin) / 2;
+		var saturation = _elm_lang$core$Native_Utils.eq(lightness, 0) ? 0 : (c / (1 - _elm_lang$core$Basics$abs((2 * lightness) - 1)));
+		var hue = _elm_lang$core$Basics$degrees(60) * (_elm_lang$core$Native_Utils.eq(cMax, r) ? A2(_elm_lang$core$Color$fmod, (g - b) / c, 6) : (_elm_lang$core$Native_Utils.eq(cMax, g) ? (((b - r) / c) + 2) : (((r - g) / c) + 4)));
+		return {ctor: '_Tuple3', _0: hue, _1: saturation, _2: lightness};
+	});
+var _elm_lang$core$Color$hslToRgb = F3(
+	function (hue, saturation, lightness) {
+		var hue$ = hue / _elm_lang$core$Basics$degrees(60);
+		var chroma = (1 - _elm_lang$core$Basics$abs((2 * lightness) - 1)) * saturation;
+		var x = chroma * (1 - _elm_lang$core$Basics$abs(
+			A2(_elm_lang$core$Color$fmod, hue$, 2) - 1));
+		var _p0 = (_elm_lang$core$Native_Utils.cmp(hue$, 0) < 0) ? {ctor: '_Tuple3', _0: 0, _1: 0, _2: 0} : ((_elm_lang$core$Native_Utils.cmp(hue$, 1) < 0) ? {ctor: '_Tuple3', _0: chroma, _1: x, _2: 0} : ((_elm_lang$core$Native_Utils.cmp(hue$, 2) < 0) ? {ctor: '_Tuple3', _0: x, _1: chroma, _2: 0} : ((_elm_lang$core$Native_Utils.cmp(hue$, 3) < 0) ? {ctor: '_Tuple3', _0: 0, _1: chroma, _2: x} : ((_elm_lang$core$Native_Utils.cmp(hue$, 4) < 0) ? {ctor: '_Tuple3', _0: 0, _1: x, _2: chroma} : ((_elm_lang$core$Native_Utils.cmp(hue$, 5) < 0) ? {ctor: '_Tuple3', _0: x, _1: 0, _2: chroma} : ((_elm_lang$core$Native_Utils.cmp(hue$, 6) < 0) ? {ctor: '_Tuple3', _0: chroma, _1: 0, _2: x} : {ctor: '_Tuple3', _0: 0, _1: 0, _2: 0}))))));
+		var r = _p0._0;
+		var g = _p0._1;
+		var b = _p0._2;
+		var m = lightness - (chroma / 2);
+		return {ctor: '_Tuple3', _0: r + m, _1: g + m, _2: b + m};
+	});
+var _elm_lang$core$Color$toRgb = function (color) {
+	var _p1 = color;
+	if (_p1.ctor === 'RGBA') {
+		return {red: _p1._0, green: _p1._1, blue: _p1._2, alpha: _p1._3};
+	} else {
+		var _p2 = A3(_elm_lang$core$Color$hslToRgb, _p1._0, _p1._1, _p1._2);
+		var r = _p2._0;
+		var g = _p2._1;
+		var b = _p2._2;
+		return {
+			red: _elm_lang$core$Basics$round(255 * r),
+			green: _elm_lang$core$Basics$round(255 * g),
+			blue: _elm_lang$core$Basics$round(255 * b),
+			alpha: _p1._3
+		};
+	}
+};
+var _elm_lang$core$Color$toHsl = function (color) {
+	var _p3 = color;
+	if (_p3.ctor === 'HSLA') {
+		return {hue: _p3._0, saturation: _p3._1, lightness: _p3._2, alpha: _p3._3};
+	} else {
+		var _p4 = A3(_elm_lang$core$Color$rgbToHsl, _p3._0, _p3._1, _p3._2);
+		var h = _p4._0;
+		var s = _p4._1;
+		var l = _p4._2;
+		return {hue: h, saturation: s, lightness: l, alpha: _p3._3};
+	}
+};
+var _elm_lang$core$Color$HSLA = F4(
+	function (a, b, c, d) {
+		return {ctor: 'HSLA', _0: a, _1: b, _2: c, _3: d};
+	});
+var _elm_lang$core$Color$hsla = F4(
+	function (hue, saturation, lightness, alpha) {
+		return A4(
+			_elm_lang$core$Color$HSLA,
+			hue - _elm_lang$core$Basics$turns(
+				_elm_lang$core$Basics$toFloat(
+					_elm_lang$core$Basics$floor(hue / (2 * _elm_lang$core$Basics$pi)))),
+			saturation,
+			lightness,
+			alpha);
+	});
+var _elm_lang$core$Color$hsl = F3(
+	function (hue, saturation, lightness) {
+		return A4(_elm_lang$core$Color$hsla, hue, saturation, lightness, 1);
+	});
+var _elm_lang$core$Color$complement = function (color) {
+	var _p5 = color;
+	if (_p5.ctor === 'HSLA') {
+		return A4(
+			_elm_lang$core$Color$hsla,
+			_p5._0 + _elm_lang$core$Basics$degrees(180),
+			_p5._1,
+			_p5._2,
+			_p5._3);
+	} else {
+		var _p6 = A3(_elm_lang$core$Color$rgbToHsl, _p5._0, _p5._1, _p5._2);
+		var h = _p6._0;
+		var s = _p6._1;
+		var l = _p6._2;
+		return A4(
+			_elm_lang$core$Color$hsla,
+			h + _elm_lang$core$Basics$degrees(180),
+			s,
+			l,
+			_p5._3);
+	}
+};
+var _elm_lang$core$Color$grayscale = function (p) {
+	return A4(_elm_lang$core$Color$HSLA, 0, 0, 1 - p, 1);
+};
+var _elm_lang$core$Color$greyscale = function (p) {
+	return A4(_elm_lang$core$Color$HSLA, 0, 0, 1 - p, 1);
+};
+var _elm_lang$core$Color$RGBA = F4(
+	function (a, b, c, d) {
+		return {ctor: 'RGBA', _0: a, _1: b, _2: c, _3: d};
+	});
+var _elm_lang$core$Color$rgba = _elm_lang$core$Color$RGBA;
+var _elm_lang$core$Color$rgb = F3(
+	function (r, g, b) {
+		return A4(_elm_lang$core$Color$RGBA, r, g, b, 1);
+	});
+var _elm_lang$core$Color$lightRed = A4(_elm_lang$core$Color$RGBA, 239, 41, 41, 1);
+var _elm_lang$core$Color$red = A4(_elm_lang$core$Color$RGBA, 204, 0, 0, 1);
+var _elm_lang$core$Color$darkRed = A4(_elm_lang$core$Color$RGBA, 164, 0, 0, 1);
+var _elm_lang$core$Color$lightOrange = A4(_elm_lang$core$Color$RGBA, 252, 175, 62, 1);
+var _elm_lang$core$Color$orange = A4(_elm_lang$core$Color$RGBA, 245, 121, 0, 1);
+var _elm_lang$core$Color$darkOrange = A4(_elm_lang$core$Color$RGBA, 206, 92, 0, 1);
+var _elm_lang$core$Color$lightYellow = A4(_elm_lang$core$Color$RGBA, 255, 233, 79, 1);
+var _elm_lang$core$Color$yellow = A4(_elm_lang$core$Color$RGBA, 237, 212, 0, 1);
+var _elm_lang$core$Color$darkYellow = A4(_elm_lang$core$Color$RGBA, 196, 160, 0, 1);
+var _elm_lang$core$Color$lightGreen = A4(_elm_lang$core$Color$RGBA, 138, 226, 52, 1);
+var _elm_lang$core$Color$green = A4(_elm_lang$core$Color$RGBA, 115, 210, 22, 1);
+var _elm_lang$core$Color$darkGreen = A4(_elm_lang$core$Color$RGBA, 78, 154, 6, 1);
+var _elm_lang$core$Color$lightBlue = A4(_elm_lang$core$Color$RGBA, 114, 159, 207, 1);
+var _elm_lang$core$Color$blue = A4(_elm_lang$core$Color$RGBA, 52, 101, 164, 1);
+var _elm_lang$core$Color$darkBlue = A4(_elm_lang$core$Color$RGBA, 32, 74, 135, 1);
+var _elm_lang$core$Color$lightPurple = A4(_elm_lang$core$Color$RGBA, 173, 127, 168, 1);
+var _elm_lang$core$Color$purple = A4(_elm_lang$core$Color$RGBA, 117, 80, 123, 1);
+var _elm_lang$core$Color$darkPurple = A4(_elm_lang$core$Color$RGBA, 92, 53, 102, 1);
+var _elm_lang$core$Color$lightBrown = A4(_elm_lang$core$Color$RGBA, 233, 185, 110, 1);
+var _elm_lang$core$Color$brown = A4(_elm_lang$core$Color$RGBA, 193, 125, 17, 1);
+var _elm_lang$core$Color$darkBrown = A4(_elm_lang$core$Color$RGBA, 143, 89, 2, 1);
+var _elm_lang$core$Color$black = A4(_elm_lang$core$Color$RGBA, 0, 0, 0, 1);
+var _elm_lang$core$Color$white = A4(_elm_lang$core$Color$RGBA, 255, 255, 255, 1);
+var _elm_lang$core$Color$lightGrey = A4(_elm_lang$core$Color$RGBA, 238, 238, 236, 1);
+var _elm_lang$core$Color$grey = A4(_elm_lang$core$Color$RGBA, 211, 215, 207, 1);
+var _elm_lang$core$Color$darkGrey = A4(_elm_lang$core$Color$RGBA, 186, 189, 182, 1);
+var _elm_lang$core$Color$lightGray = A4(_elm_lang$core$Color$RGBA, 238, 238, 236, 1);
+var _elm_lang$core$Color$gray = A4(_elm_lang$core$Color$RGBA, 211, 215, 207, 1);
+var _elm_lang$core$Color$darkGray = A4(_elm_lang$core$Color$RGBA, 186, 189, 182, 1);
+var _elm_lang$core$Color$lightCharcoal = A4(_elm_lang$core$Color$RGBA, 136, 138, 133, 1);
+var _elm_lang$core$Color$charcoal = A4(_elm_lang$core$Color$RGBA, 85, 87, 83, 1);
+var _elm_lang$core$Color$darkCharcoal = A4(_elm_lang$core$Color$RGBA, 46, 52, 54, 1);
+var _elm_lang$core$Color$Radial = F5(
+	function (a, b, c, d, e) {
+		return {ctor: 'Radial', _0: a, _1: b, _2: c, _3: d, _4: e};
+	});
+var _elm_lang$core$Color$radial = _elm_lang$core$Color$Radial;
+var _elm_lang$core$Color$Linear = F3(
+	function (a, b, c) {
+		return {ctor: 'Linear', _0: a, _1: b, _2: c};
+	});
+var _elm_lang$core$Color$linear = _elm_lang$core$Color$Linear;
+
 //import Native.Utils //
 
 var _elm_lang$core$Native_Scheduler = function() {
@@ -8696,6 +8862,7 @@ var _elm_lang$svg$Svg_Attributes$accentHeight = _elm_lang$virtual_dom$VirtualDom
 
 var _mdgriffith$elm_package_skimmer$Main$cornerStone = F2(
 	function (cls, coloring) {
+		var grey = '#EEEEEE';
 		var green = '#7FD13B';
 		var purple = '#5A6378';
 		var gold = '#F0AD00';
@@ -8711,8 +8878,10 @@ var _mdgriffith$elm_package_skimmer$Main$cornerStone = F2(
 					return {ctor: '_Tuple4', _0: gold, _1: gold, _2: gold, _3: gold};
 				case 'Purple':
 					return {ctor: '_Tuple4', _0: purple, _1: purple, _2: purple, _3: purple};
-				default:
+				case 'Blue':
 					return {ctor: '_Tuple4', _0: blue, _1: blue, _2: blue, _3: blue};
+				default:
+					return {ctor: '_Tuple4', _0: grey, _1: grey, _2: grey, _3: grey};
 			}
 		}();
 		var color1 = _p0._0;
@@ -8907,7 +9076,7 @@ var _mdgriffith$elm_package_skimmer$Main$has = F2(
 					_elm_lang$html$Html$i,
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_elm_lang$html$Html_Attributes$class('fa fa-check-square-o')
+							_elm_lang$html$Html_Attributes$class('fa fa-check green')
 						]),
 					_elm_lang$core$Native_List.fromArray(
 						[])),
@@ -8925,7 +9094,7 @@ var _mdgriffith$elm_package_skimmer$Main$has = F2(
 					_elm_lang$html$Html$i,
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_elm_lang$html$Html_Attributes$class('fa fa-square-o')
+							_elm_lang$html$Html_Attributes$class('fa fa-ban red')
 						]),
 					_elm_lang$core$Native_List.fromArray(
 						[])),
@@ -9190,12 +9359,110 @@ var _mdgriffith$elm_package_skimmer$Main$Package = function (a) {
 var _mdgriffith$elm_package_skimmer$Main$Query = function (a) {
 	return {ctor: 'Query', _0: a};
 };
+var _mdgriffith$elm_package_skimmer$Main$viewToolbar = F2(
+	function (refreshed, query) {
+		return A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$class('toolbar')
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					A2(
+					_elm_lang$html$Html$div,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$style(
+							_elm_lang$core$Native_List.fromArray(
+								[
+									{ctor: '_Tuple2', _0: 'flex', _1: '1'}
+								]))
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[])),
+					A2(
+					_elm_lang$html$Html$div,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('search-container')
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A2(
+							_elm_lang$html$Html$span,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$class('logo-text')
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									A2(
+									_elm_lang$html$Html$span,
+									_elm_lang$core$Native_List.fromArray(
+										[
+											_elm_lang$html$Html_Attributes$class('elm-name')
+										]),
+									_elm_lang$core$Native_List.fromArray(
+										[
+											_elm_lang$html$Html$text('elm')
+										])),
+									A2(
+									_elm_lang$html$Html$span,
+									_elm_lang$core$Native_List.fromArray(
+										[
+											_elm_lang$html$Html_Attributes$class('package-skimmer')
+										]),
+									_elm_lang$core$Native_List.fromArray(
+										[
+											_elm_lang$html$Html$text('package skimmer')
+										]))
+								])),
+							A2(
+							_elm_lang$html$Html$input,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$class('search'),
+									_elm_lang$html$Html_Attributes$placeholder('Search'),
+									_elm_lang$html$Html_Attributes$value(query),
+									_elm_lang$html$Html_Events$onInput(_mdgriffith$elm_package_skimmer$Main$Query),
+									_elm_lang$html$Html_Attributes$autofocus(true)
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[])),
+							A2(
+							_elm_lang$html$Html$div,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$class('last-updated')
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html$text(
+									A2(_elm_lang$core$Basics_ops['++'], 'updated on ', refreshed))
+								]))
+						])),
+					A2(
+					_elm_lang$html$Html$div,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$style(
+							_elm_lang$core$Native_List.fromArray(
+								[
+									{ctor: '_Tuple2', _0: 'flex', _1: '1'}
+								]))
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[]))
+				]));
+	});
 var _mdgriffith$elm_package_skimmer$Main$Load = function (a) {
 	return {ctor: 'Load', _0: a};
 };
 var _mdgriffith$elm_package_skimmer$Main$subscriptions = function (model) {
 	return _mdgriffith$elm_package_skimmer$Main$packages(_mdgriffith$elm_package_skimmer$Main$Load);
 };
+var _mdgriffith$elm_package_skimmer$Main$Grey = {ctor: 'Grey'};
 var _mdgriffith$elm_package_skimmer$Main$Blue = {ctor: 'Blue'};
 var _mdgriffith$elm_package_skimmer$Main$Purple = {ctor: 'Purple'};
 var _mdgriffith$elm_package_skimmer$Main$Green = {ctor: 'Green'};
@@ -9645,113 +9912,6 @@ var _mdgriffith$elm_package_skimmer$Main$viewSidebar = _elm_lang$core$Native_Lis
 			]))
 	]);
 var _mdgriffith$elm_package_skimmer$Main$AllColors = {ctor: 'AllColors'};
-var _mdgriffith$elm_package_skimmer$Main$viewToolbar = F2(
-	function (refreshed, query) {
-		return A2(
-			_elm_lang$html$Html$div,
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html_Attributes$class('toolbar')
-				]),
-			_elm_lang$core$Native_List.fromArray(
-				[
-					A2(
-					_elm_lang$html$Html$span,
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html_Attributes$class('logo')
-						]),
-					_elm_lang$core$Native_List.fromArray(
-						[
-							A2(_mdgriffith$elm_package_skimmer$Main$cornerStone, 'logo-svg', _mdgriffith$elm_package_skimmer$Main$AllColors)
-						])),
-					A2(
-					_elm_lang$html$Html$div,
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html_Attributes$style(
-							_elm_lang$core$Native_List.fromArray(
-								[
-									{ctor: '_Tuple2', _0: 'flex', _1: '1'}
-								]))
-						]),
-					_elm_lang$core$Native_List.fromArray(
-						[])),
-					A2(
-					_elm_lang$html$Html$div,
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html_Attributes$class('search-container')
-						]),
-					_elm_lang$core$Native_List.fromArray(
-						[
-							A2(
-							_elm_lang$html$Html$span,
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html_Attributes$class('logo-text')
-								]),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									A2(
-									_elm_lang$html$Html$span,
-									_elm_lang$core$Native_List.fromArray(
-										[
-											_elm_lang$html$Html_Attributes$class('elm-name')
-										]),
-									_elm_lang$core$Native_List.fromArray(
-										[
-											_elm_lang$html$Html$text('elm')
-										])),
-									A2(
-									_elm_lang$html$Html$span,
-									_elm_lang$core$Native_List.fromArray(
-										[
-											_elm_lang$html$Html_Attributes$class('package-skimmer')
-										]),
-									_elm_lang$core$Native_List.fromArray(
-										[
-											_elm_lang$html$Html$text('package skimmer')
-										]))
-								])),
-							A2(
-							_elm_lang$html$Html$input,
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html_Attributes$class('search'),
-									_elm_lang$html$Html_Attributes$placeholder('Search'),
-									_elm_lang$html$Html_Attributes$value(query),
-									_elm_lang$html$Html_Events$onInput(_mdgriffith$elm_package_skimmer$Main$Query),
-									_elm_lang$html$Html_Attributes$autofocus(true)
-								]),
-							_elm_lang$core$Native_List.fromArray(
-								[])),
-							A2(
-							_elm_lang$html$Html$div,
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html_Attributes$class('last-updated')
-								]),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html$text(
-									A2(_elm_lang$core$Basics_ops['++'], 'updated on ', refreshed))
-								]))
-						])),
-					A2(
-					_elm_lang$html$Html$div,
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html_Attributes$style(
-							_elm_lang$core$Native_List.fromArray(
-								[
-									{ctor: '_Tuple2', _0: 'flex', _1: '1'}
-								]))
-						]),
-					_elm_lang$core$Native_List.fromArray(
-						[]))
-				]));
-	});
 var _mdgriffith$elm_package_skimmer$Main$viewPackages = function (pkgs) {
 	var viewPkg = function (pkg) {
 		return A2(
@@ -9804,7 +9964,7 @@ var _mdgriffith$elm_package_skimmer$Main$viewPackages = function (pkgs) {
 						]),
 					_elm_lang$core$Native_List.fromArray(
 						[
-							A3(_mdgriffith$elm_package_skimmer$Main$iconCount, 'star', 'stars', pkg.stars),
+							A3(_mdgriffith$elm_package_skimmer$Main$iconCount, 'star gold', 'stars', pkg.stars),
 							function () {
 							var _p6 = pkg.license;
 							if (_p6.ctor === 'Nothing') {
@@ -9820,7 +9980,7 @@ var _mdgriffith$elm_package_skimmer$Main$viewPackages = function (pkgs) {
 											_elm_lang$html$Html$i,
 											_elm_lang$core$Native_List.fromArray(
 												[
-													_elm_lang$html$Html_Attributes$class('fa fa-legal')
+													_elm_lang$html$Html_Attributes$class('fa fa-legal purple')
 												]),
 											_elm_lang$core$Native_List.fromArray(
 												[])),
@@ -9839,22 +9999,64 @@ var _mdgriffith$elm_package_skimmer$Main$viewPackages = function (pkgs) {
 											_elm_lang$html$Html$i,
 											_elm_lang$core$Native_List.fromArray(
 												[
-													_elm_lang$html$Html_Attributes$class('fa fa-legal')
+													_elm_lang$html$Html_Attributes$class('fa fa-legal purple')
 												]),
 											_elm_lang$core$Native_List.fromArray(
 												[])),
 											_elm_lang$html$Html$text(
-											A2(
-												_elm_lang$core$Basics_ops['++'],
-												' ',
-												A2(_elm_lang$core$Basics_ops['++'], _p6._0, ' license')))
+											A2(_elm_lang$core$Basics_ops['++'], ' ', _p6._0))
 										]));
 							}
 						}(),
 							A2(_mdgriffith$elm_package_skimmer$Main$has, '0.17 compatible', pkg.is_current),
-							A2(_mdgriffith$elm_package_skimmer$Main$has, 'tests', pkg.has_tests),
-							A2(_mdgriffith$elm_package_skimmer$Main$has, 'examples', pkg.has_examples),
 							A2(_mdgriffith$elm_package_skimmer$Main$cornerStone, 'package-svg-bottom-right', _mdgriffith$elm_package_skimmer$Main$AllColors)
+						])),
+					A2(
+					_elm_lang$html$Html$div,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('links')
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A2(
+							_elm_lang$html$Html$a,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$class('pkg-link'),
+									_elm_lang$html$Html_Attributes$href(
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										'http://package.elm-lang.org/packages/',
+										A2(_elm_lang$core$Basics_ops['++'], pkg.name, '/latest')))
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html$text('docs')
+								])),
+							A2(
+							_elm_lang$html$Html$a,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$class('pkg-link'),
+									_elm_lang$html$Html_Attributes$href(
+									A2(_elm_lang$core$Basics_ops['++'], 'http://github.com/', pkg.name))
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html$text('source')
+								])),
+							A2(
+							_elm_lang$html$Html$a,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$class('pkg-link'),
+									_elm_lang$html$Html_Attributes$href('google.com')
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html$text('who uses this?')
+								]))
 						]))
 				]));
 	};
@@ -9862,9 +10064,34 @@ var _mdgriffith$elm_package_skimmer$Main$viewPackages = function (pkgs) {
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
 			[
-				_elm_lang$html$Html_Attributes$class('packages')
+				_elm_lang$html$Html_Attributes$style(
+				_elm_lang$core$Native_List.fromArray(
+					[
+						{ctor: '_Tuple2', _0: 'position', _1: 'relative'},
+						{ctor: '_Tuple2', _0: 'margin-top', _1: '50px'},
+						{ctor: '_Tuple2', _0: 'z-index', _1: '1'}
+					]))
 			]),
-		A2(_elm_lang$core$List$map, viewPkg, pkgs));
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$span,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('logo')
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(_mdgriffith$elm_package_skimmer$Main$cornerStone, 'logo-svg', _mdgriffith$elm_package_skimmer$Main$Grey)
+					])),
+				A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('packages')
+					]),
+				A2(_elm_lang$core$List$map, viewPkg, pkgs))
+			]));
 };
 var _mdgriffith$elm_package_skimmer$Main$view = function (model) {
 	return A2(

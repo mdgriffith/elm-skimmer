@@ -8,6 +8,7 @@ import Time exposing (Time, second)
 import String
 import Svg
 import Svg.Attributes
+import Color
 
 
 main =
@@ -166,10 +167,7 @@ view model =
 viewToolbar : String -> String -> Html Msg
 viewToolbar refreshed query =
     div [ class "toolbar" ]
-        [ span [ class "logo" ]
-            [ cornerStone "logo-svg" AllColors
-            ]
-        , div [ style [ ( "flex", "1" ) ] ] []
+        [ div [ style [ ( "flex", "1" ) ] ] []
         , div [ class "search-container" ]
             [ span [ class "logo-text" ]
                 [ span [ class "elm-name" ] [ text "elm" ]
@@ -200,30 +198,47 @@ viewPackages pkgs =
                 , deprecationWarning pkg.deprecated
                 , div [ class "summary" ] [ text <| pkg.summary ]
                 , div [ class "metrics" ]
-                    [ iconCount "star" "stars" pkg.stars
+                    [ iconCount "star gold" "stars" pkg.stars
                     , case pkg.license of
                         Nothing ->
                             div [ class "metric" ]
-                                [ i [ class <| "fa fa-legal" ] []
+                                [ i [ class <| "fa fa-legal purple" ] []
                                 , text " No license"
                                 ]
 
                         Just license ->
                             div [ class "metric" ]
-                                [ i [ class <| "fa fa-legal" ] []
-                                , text <| " " ++ license ++ " license"
+                                [ i [ class <| "fa fa-legal purple" ] []
+                                , text <| " " ++ license
                                 ]
                       -- , iconCount "code-fork" "forks" pkg.forks
                       -- , iconCount "eye" "watchers" pkg.watchers
                       -- , iconCount "exclamation" "open issues" pkg.open_issues
                     , has "0.17 compatible" pkg.is_current
-                    , has "tests" pkg.has_tests
-                    , has "examples" pkg.has_examples
+                      --, has "tests" pkg.has_tests
+                      --, has "examples" pkg.has_examples
                     , cornerStone "package-svg-bottom-right" AllColors
+                    ]
+                , div [ class "links" ]
+                    [ a [ class "pkg-link", href <| "http://package.elm-lang.org/packages/" ++ pkg.name ++ "/latest" ] [ text "docs" ]
+                    , a [ class "pkg-link", href <| "http://github.com/" ++ pkg.name ] [ text "source" ]
+                    , a [ class "pkg-link", href "google.com" ] [ text "who uses this?" ]
                     ]
                 ]
     in
-        div [ class "packages" ] (List.map viewPkg pkgs)
+        div
+            [ style
+                [ ( "position", "relative" )
+                , ( "margin-top", "50px" )
+                , ( "z-index", "1" )
+                ]
+            ]
+            [ span [ class "logo" ]
+                [ cornerStone "logo-svg" Grey
+                ]
+            , div [ class "packages" ]
+                (List.map viewPkg pkgs)
+            ]
 
 
 viewSidebar : List (Html Msg)
@@ -313,12 +328,12 @@ has : String -> Bool -> Html Msg
 has label metric =
     if metric then
         span [ class "metric" ]
-            [ i [ class <| "fa fa-check-square-o" ] []
+            [ i [ class <| "fa fa-check green" ] []
             , text <| " " ++ label
             ]
     else
         span [ class "metric" ]
-            [ i [ class <| "fa fa-square-o" ] []
+            [ i [ class <| "fa fa-ban red" ] []
             , text <| " " ++ label
             ]
 
@@ -329,6 +344,7 @@ type CornerStoneColoring
     | Green
     | Purple
     | Blue
+    | Grey
 
 
 cornerStone : String -> CornerStoneColoring -> Html Msg
@@ -346,6 +362,9 @@ cornerStone cls coloring =
         green =
             "#7FD13B"
 
+        grey =
+            "#EEEEEE"
+
         ( color1, color2, color3, color4 ) =
             case coloring of
                 AllColors ->
@@ -362,6 +381,9 @@ cornerStone cls coloring =
 
                 Blue ->
                     ( blue, blue, blue, blue )
+
+                Grey ->
+                    ( grey, grey, grey, grey )
     in
         div [ class cls, style [ ( "z-index", "0" ) ] ]
             [ Svg.svg [ Svg.Attributes.version "1.1", Svg.Attributes.x "0px", Svg.Attributes.y "0px", Svg.Attributes.viewBox "0 0 323.1 323" ]
