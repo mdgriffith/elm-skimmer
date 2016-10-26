@@ -140,24 +140,22 @@ def get_github_data(projects):
                     github_data["elm_package"] = json.loads(elm_package.content)
                 except ValueError:
                     print "Error parsing elm-package.json for " + pkg["name"]
-                    github_data["elm_package"] = {}
+                    github_data["elm_package"] = None
 
             else:
-                github_data["elm_package"] = {}
-
-
+                github_data["elm_package"] = None
 
             full_pkg_data[pkg["name"]] = github_data
             wait_for_reset_if_necessary(elm_package.headers)
 
-            
 
-        # time.sleep(0.1)
+
+    # with open("primary/github-package-data.json", "w") as INDEX:
+    #     INDEX.write(json.dumps({'retrieved':str(now), 'packages':full_pkg_data}, indent=4))
 
 
     return {'retrieved':str(now), 'packages':full_pkg_data}
-    # with open("primary/github-package-data.json", "w") as INDEX:
-    #     INDEX.write(json.dumps({'retrieved':str(now), 'packages':full_pkg_data}, indent=4))
+   
     
 
 def remove_prefix(text, prefix):
@@ -192,6 +190,9 @@ def extract_metrics(packages, full_github_data):
 
     github_data = full_github_data["packages"]
 
+
+    reverse_dep_count = {}
+
     total = len(packages)
     full_pkg_data = []
     for i, pkg in enumerate(packages):
@@ -222,7 +223,7 @@ def extract_metrics(packages, full_github_data):
         pkg["open_issues"] = repo_data["open_issues_count"]
         pkg["has_tests"] = repo_data["has_test_dir"]
         pkg["has_examples"] = repo_data["has_examples_dir"]
-        if "elm_package" in repo_data:
+        if "elm_package" in repo_data and repo_data["elm_package"] is not None:
             pkg["license"] = repo_data["elm_package"].get("license", "unknown")
 
         description = repo_data["description"]
@@ -247,6 +248,22 @@ def extract_metrics(packages, full_github_data):
             if redirect is not None:
                 pkg["deprecation_redirect"] = remove_github_prefix(redirect.group(1))
 
+        if repo_data["elm_package"] is not None:
+            for key, versions in repo_data["elm_package"]["dependencies"].items():
+                if key in reverse_dep_count:
+                    if versions in reverse_dep_count[key]:
+                        if pkg["name"] not in reverse_dep_count[key][versions]:
+                            reverse_dep_count[key][versions] = reverse_dep_count[key][versions] + [pkg["name"]]
+                    else:
+                        reverse_dep_count[key][versions] = [pkg["name"]]
+                else:
+                    reverse_dep_count[key] = {}
+                    reverse_dep_count[key][versions] = [pkg["name"]]
+
+
+    with open("metrics/reverse_deps.json", "w") as INDEX:
+        INDEX.write(json.dumps(reverse_dep_count, indent=4))
+
 
     with open("metrics/current.json", "w") as INDEX:
         INDEX.write(json.dumps({'retrieved':str(now), 'packages':packages}, indent=None))
@@ -254,10 +271,11 @@ def extract_metrics(packages, full_github_data):
 
 def render_template():
     with open("metrics/current.json") as PACKAGES:
-        with open("template.html") as TEMPLATE:
-            with open("../html/index.html", "w") as TARGET:
-                template = TEMPLATE.read()
-                TARGET.write(template.format(package_data=PACKAGES.read()))
+        with open("metrics/reverse_deps.json") as DEPS:
+            with open("template.html") as TEMPLATE:
+                with open("../html/index.html", "w") as TARGET:
+                    template = TEMPLATE.read()
+                    TARGET.write(template.format(package_data=PACKAGES.read(), reverse_deps=DEPS.read()))
 
 
 def get_elm_package_index():
@@ -304,7 +322,7 @@ def get_top_elm_repos():
     retrieved = 0
     projects = []
 
-    while retrieved < 101:
+    while retrieved < 201:
         
         projects_response = requests.get(search, params=search_params)
         # pprint.pprint(projects_response.headers)
@@ -339,3 +357,6 @@ if __name__ == "__main__":
     github_data = get_github_data(everything)
     extract_metrics(everything, github_data)
     render_template()
+
+
+
