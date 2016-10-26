@@ -2,14 +2,15 @@
 <html>
     <head>
         <script src="elm.js"></script>
-        <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
         <style type="text/css">
             html, body {{
                 background-color: #fff;
-                font-family: 'Open Sans',  sans-serif;
+                font-family: 'Open Sans', sans-serif;
                 font-size:14px;
                 margin:0px;
+                color:#111;
 
             }}
             a {{
@@ -20,7 +21,7 @@
             a:hover {{
                 text-decoration: underline;
                 color: rgb(234,21,122);
-                cursor: "pointer";
+                cursor: pointer;
             }}
             .sidebar {{
                 width: 350px;
@@ -40,6 +41,7 @@
                 flex-wrap: wrap;
                 justify-content: center;
                 z-index:100;
+                padding:0 40px;
             }}
             .standard-package-list {{
                 display:flex;
@@ -153,9 +155,18 @@
                 margin: 15px;
                 border-radius: 5px;
                 position:relative;
-                box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
+                /*box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);*/
                 overflow:hidden;
                 border: 1px solid #ccc;
+                transition-property: box-shadow, transform;
+                transition-duration: 300ms;
+                -webkit-transition-timing-function: ease-out;
+                transition-timing-function: ease-out;
+                transform: translate(0px, 0px);
+            }}
+            .package:hover {{
+                box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.15);
+                transform: translate(0px, -2px);
             }}
             .package .summary {{
                 padding:20px 0;
@@ -197,13 +208,19 @@
             }}
             .metrics .metric {{
                 position:relative;
-                width:170px;
+                width:220px;
                 margin:2px 5px;
 
             }}
 
             h1.name {{
                 padding-bottom:10px;
+            }}
+            .pkg-link {{
+                margin-right:10px;
+                background-color:#EEE;
+                border-radius: 3px;
+                padding: 1px 5px;
             }}
 
             .deprecation-warning {{
@@ -214,6 +231,25 @@
                 border-radius:3px;
                 padding:5px 10px;
                 margin:5px 0;
+            }}
+            .is-package {{
+                display:inline-block;
+                position:relative;
+                background-color:#EEEEEE;
+
+                color:#111;
+                border-radius:3px;
+                padding:5px 10px;
+                margin:5px 0;
+            }}
+            .gold {{
+                color:#F0AD00;
+            }}
+            .purple {{
+                color: #5A6378;
+            }}
+            .green {{
+                color: #7FD13B;
             }}
         </style>
     </head>

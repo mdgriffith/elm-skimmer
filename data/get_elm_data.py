@@ -4,6 +4,7 @@ import time
 import datetime
 import re
 import pprint
+import requests.utils
 
 all_packages = "http://package.elm-lang.org/all-packages"
 
@@ -22,17 +23,7 @@ elm_package_file = "https://raw.githubusercontent.com/{package}/master/elm-packa
 download_file_location = "https://github.com/{package}/archive/master.zip"
 
 
-def get_elm_package_index():
-    print "retrieving elm package index"
-    with open("primary/package-index.json", "w") as INDEX:
-        all_pkgs = requests.get(all_packages)
-        if all_pkgs.status_code < 300 and all_pkgs.status_code >= 200:
-            INDEX.write(all_pkgs.content)
 
-    with open("primary/new-packages.json", "w") as INDEX:
-        all_pkgs = requests.get(packages_for_seventeen)
-        if all_pkgs.status_code < 300 and all_pkgs.status_code >= 200:
-            INDEX.write(all_pkgs.content)
 
 
 def wait_for_reset_if_necessary(headers):
@@ -86,7 +77,7 @@ def download_elm_package_zip():
 
 
 
-def get_elm_package_github_data():
+def get_github_data(projects):
 
     credentials = None
     with open('credentials/github.json') as GITHUB:
@@ -94,16 +85,11 @@ def get_elm_package_github_data():
     if credentials is None:
         raise "No github credentials!"
 
-    packages = []
-    with open("primary/package-index.json") as INDEX:
-        index = INDEX.read()
-        packages = json.loads(index)
-
     print "retrieving github data"
-    total = len(packages)
+    total = len(projects)
     full_pkg_data = {}
-    for i, pkg in enumerate(packages):
-        print str(i) + "/" + str(total) + " - Retriving github data for: " + str(pkg["name"])
+    for i, pkg in enumerate(projects):
+        print str(i+1) + "/" + str(total) + " - Retriving github data for: " + str(pkg["name"])
         pkg_data = requests.get(github_json + pkg["name"], params=credentials)
 
         github_data = {}
@@ -114,10 +100,6 @@ def get_elm_package_github_data():
         wait_for_reset_if_necessary(pkg_data.headers)
 
         if github_data:
-
-
-
-
             # Has Test Directory
             has_test_dir = requests.get(test_dir.format(package=pkg["name"]), params=credentials)
             if has_test_dir.status_code < 300 and has_test_dir.status_code >= 200:
@@ -170,11 +152,12 @@ def get_elm_package_github_data():
 
             
 
-        time.sleep(0.1)
+        # time.sleep(0.1)
 
 
-    with open("primary/github-package-data.json", "w") as INDEX:
-        INDEX.write(json.dumps({'retrieved':str(now), 'packages':full_pkg_data}, indent=4))
+    return {'retrieved':str(now), 'packages':full_pkg_data}
+    # with open("primary/github-package-data.json", "w") as INDEX:
+    #     INDEX.write(json.dumps({'retrieved':str(now), 'packages':full_pkg_data}, indent=4))
     
 
 def remove_prefix(text, prefix):
@@ -189,37 +172,40 @@ def remove_github_prefix(text):
 
 
 
-def extract_metrics():
-    packages = []
-    with open("primary/package-index.json") as INDEX:
-        index = INDEX.read()
-        packages = json.loads(index)
+def extract_metrics(packages, full_github_data):
+    # packages = []
+    # with open("primary/package-index.json") as INDEX:
+    #     index = INDEX.read()
+    #     packages = json.loads(index)
 
-    new_packages = []
-    with open("primary/new-packages.json") as INDEX:
-        index = INDEX.read()
-        new_packages = json.loads(index)
+    # new_packages = []
+    # with open("primary/new-packages.json") as INDEX:
+    #     index = INDEX.read()
+    #     new_packages = json.loads(index)
 
-    github_data = {}
-    with open("primary/github-package-data.json") as INDEX:
-        index = INDEX.read()
-        primary_github_data = json.loads(index)
+    # github_data = {}
+    # with open("primary/github-package-data.json") as INDEX:
+    #     index = INDEX.read()
+    #     primary_github_data = json.loads(index)
 
-        github_data = primary_github_data["packages"]
+    #     github_data = primary_github_data["packages"]
+
+    github_data = full_github_data["packages"]
 
     total = len(packages)
     full_pkg_data = []
     for i, pkg in enumerate(packages):
 
         # Defaults
-        pkg["is_current"] = pkg["name"] in new_packages
+        pkg["is_current"] = "is_current" in pkg
         pkg["stars"] = 0
         pkg["forks"] = 0
         pkg["watchers"] = 0
         pkg["open_issues"] = 0
         pkg["has_tests"] = False
         pkg["has_examples"] = False
-        pkg["license"] = None
+        pkg["license"] = "unknown"
+        pkg["is_project"] = pkg["project_type"] == "project"
         pkg["deprecated"] = False
         pkg["deprecation_redirect"] = None
         pkg["no_data"] = True
@@ -237,11 +223,15 @@ def extract_metrics():
         pkg["has_tests"] = repo_data["has_test_dir"]
         pkg["has_examples"] = repo_data["has_examples_dir"]
         if "elm_package" in repo_data:
-            pkg["license"] = repo_data["elm_package"].get("license", None)
+            pkg["license"] = repo_data["elm_package"].get("license", "unknown")
 
         description = repo_data["description"]
         if description is None:
             description = ""
+
+
+        if "summary" not in pkg or pkg["summary"] is None:
+            pkg["summary"] = description
 
         # check github summary for deprecation
         if "deprecated" in description.lower():
@@ -251,7 +241,7 @@ def extract_metrics():
                 pkg["deprecation_redirect"] = remove_github_prefix(redirect.group(1))
 
         # check elm-package summary for deprecations
-        if "deprecated" in pkg["summary"].lower():
+        if pkg["summary"] is not None and "deprecated" in pkg["summary"].lower():
             pkg["deprecated"] = True
             redirect = redirect_matcher.search(pkg["summary"])
             if redirect is not None:
@@ -270,6 +260,31 @@ def render_template():
                 TARGET.write(template.format(package_data=PACKAGES.read()))
 
 
+def get_elm_package_index():
+    print "retrieving elm package index"
+
+
+    current_pkgs = []
+    all_pkgs = requests.get(packages_for_seventeen)
+    if all_pkgs.status_code < 300 and all_pkgs.status_code >= 200:
+        current_pkgs = json.loads(all_pkgs.content)
+    else:
+        print "FAILURE"
+        raise Exception
+
+    all_pkgs_response = requests.get(all_packages)
+    if all_pkgs_response.status_code < 300 and all_pkgs_response.status_code >= 200:
+        all_pkgs = json.loads(all_pkgs_response.content)
+
+    for pkg in all_pkgs:
+        if pkg["name"] in current_pkgs:
+            pkg[u"is_current"] = True
+        pkg[u"project_type"] = u"package"
+    return all_pkgs
+            
+
+
+
 def get_top_elm_repos():
     credentials = None
     with open('credentials/github.json') as GITHUB:
@@ -284,23 +299,43 @@ def get_top_elm_repos():
     package_names = [pkg["name"] for pkg in packages]
 
     search = "https://api.github.com/search/repositories"
-    credentials.update({'q':'language:elm', 'sort':'stars', 'order':'desc'})
+    search_params = {'q':'language:elm', 'sort':'stars', 'order':'desc'}
+    search_params.update(credentials)
+    retrieved = 0
+    projects = []
 
-    projects_response = requests.get(search, params=credentials)
-    if projects_response.status_code < 300 and projects_response.status_code >= 200:
-        projects = json.loads(projects_response.content)
-        only_nonpackages = [proj for proj in projects["items"] if proj["full_name"] not in package_names ]
-        print [proj["full_name"] for proj in only_nonpackages]
-    else:
-        print "error retrieving projects"
+    while retrieved < 101:
+        
+        projects_response = requests.get(search, params=search_params)
+        # pprint.pprint(projects_response.headers)
+       
+        if projects_response.status_code < 300 and projects_response.status_code >= 200:
+            project_data = json.loads(projects_response.content)
+            only_nonpackages = [proj for proj in project_data["items"] if proj["full_name"] not in package_names ]
+            projects.extend([{u"name":proj["full_name"], u"summary":proj["description"], u"project_type":u"project", u"versions":None} for proj in only_nonpackages])
+            retrieved = len(projects)
+            
+        else:
+            print "error retrieving projects"
+            break
+
+        search = [link for link in requests.utils.parse_header_links(projects_response.headers['Link']) if link['rel'] == 'next'][0]["url"]
+        search_params = {}
+        # break
+
+    return projects
+
+
 
 
 
 
 if __name__ == "__main__":
     # download_elm_package_zip()
-    ## get_top_elm_repos()
-    get_elm_package_index()
-    get_elm_package_github_data()
-    extract_metrics()
+    projects = get_top_elm_repos()
+    packages = get_elm_package_index()
+    everything = packages + projects
+
+    github_data = get_github_data(everything)
+    extract_metrics(everything, github_data)
     render_template()

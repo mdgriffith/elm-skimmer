@@ -23,13 +23,14 @@ main =
 type alias Model =
     { retrieved : String
     , packages : List Package
-    , query : String
+    , query : Query
     }
 
 
 type alias Package =
     { name : String
     , deprecated : Bool
+    , deprecation_redirect : Maybe String
     , summary : String
     , is_current : Bool
     , stars : Int
@@ -38,8 +39,11 @@ type alias Package =
     , open_issues : Int
     , has_tests : Bool
     , has_examples : Bool
-    , versions : List String
+    , versions : Maybe (List String)
     , license : Maybe String
+    , is_project : Bool
+    , project_type : String
+    , no_data : Bool
     }
 
 
@@ -47,7 +51,11 @@ init : ( Model, Cmd Msg )
 init =
     ( { retrieved = "never"
       , packages = []
-      , query = ""
+      , query =
+            { search = ""
+            , projects = False
+            , packages = True
+            }
       }
     , Cmd.none
     )
@@ -58,14 +66,51 @@ type Msg
         { retrieved : String
         , packages : List Package
         }
-    | Query String
+    | Search String
+    | SeePackages Bool
+    | SeeProjects Bool
+
+
+type alias Query =
+    { search : String
+    , projects : Bool
+    , packages : Bool
+    }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Query query ->
-            ( { model | query = query }
+        Search query ->
+            ( { model
+                | query =
+                    { search = query
+                    , projects = model.query.projects
+                    , packages = model.query.packages
+                    }
+              }
+            , Cmd.none
+            )
+
+        SeePackages see ->
+            ( { model
+                | query =
+                    { search = model.query.search
+                    , projects = not see
+                    , packages = see
+                    }
+              }
+            , Cmd.none
+            )
+
+        SeeProjects see ->
+            ( { model
+                | query =
+                    { search = model.query.search
+                    , projects = see
+                    , packages = not see
+                    }
+              }
             , Cmd.none
             )
 
@@ -88,8 +133,20 @@ update msg model =
 
                                 current =
                                     compare
-                                        (boolAsInt pkg2.is_current)
-                                        (boolAsInt pkg1.is_current)
+                                        (boolAsInt
+                                            (if pkg2.is_project then
+                                                True
+                                             else
+                                                pkg2.is_current
+                                            )
+                                        )
+                                        (boolAsInt
+                                            (if pkg1.is_project then
+                                                True
+                                             else
+                                                pkg1.is_current
+                                            )
+                                        )
 
                                 stars =
                                     compare pkg2.stars pkg1.stars
@@ -130,42 +187,55 @@ subscriptions model =
     packages Load
 
 
-searchFor : String -> List Package -> List Package
+searchFor : Query -> List Package -> List Package
 searchFor query packages =
-    if query == "" then
-        packages
-    else
-        let
-            queryTerms =
-                String.words (String.toLower query)
-
-            matchesQueryTerms pkg =
+    let
+        searched =
+            if query.search == "" then
+                packages
+            else
                 let
-                    lowerName =
-                        String.toLower pkg.name
+                    queryTerms =
+                        String.words (String.toLower query.search)
 
-                    lowerSummary =
-                        String.toLower pkg.summary
+                    matchesQueryTerms pkg =
+                        let
+                            lowerName =
+                                String.toLower pkg.name
 
-                    findTerm term =
-                        String.contains term lowerName
-                            || String.contains term lowerSummary
+                            lowerSummary =
+                                String.toLower pkg.summary
+
+                            findTerm term =
+                                String.contains term lowerName
+                                    || String.contains term lowerSummary
+                        in
+                            List.all findTerm queryTerms
                 in
-                    List.all findTerm queryTerms
-        in
-            List.filter matchesQueryTerms packages
+                    List.filter matchesQueryTerms packages
+    in
+        List.filter
+            (\pkg ->
+                if not query.projects && pkg.is_project then
+                    False
+                else if not query.packages && not pkg.is_project then
+                    False
+                else
+                    True
+            )
+            searched
 
 
 view : Model -> Html Msg
 view model =
     div []
-        [ viewToolbar model.retrieved model.query
+        [ viewToolbar model model.retrieved model.query.search
         , viewPackages (searchFor model.query model.packages)
         ]
 
 
-viewToolbar : String -> String -> Html Msg
-viewToolbar refreshed query =
+viewToolbar : Model -> String -> String -> Html Msg
+viewToolbar model refreshed query =
     div [ class "toolbar" ]
         [ div [ style [ ( "flex", "1" ) ] ] []
         , div [ class "search-container" ]
@@ -177,13 +247,25 @@ viewToolbar refreshed query =
                 [ class "search"
                 , placeholder "Search"
                 , value query
-                , onInput Query
+                , onInput Search
                 , autofocus True
                 ]
                 []
+            , checkbox SeePackages " packages" model.query.packages
+            , checkbox SeeProjects " projects" model.query.projects
             , div [ class "last-updated" ] [ text <| "updated on " ++ refreshed ]
             ]
         , div [ style [ ( "flex", "1" ) ] ] []
+        ]
+
+
+checkbox : (Bool -> msg) -> String -> Bool -> Html msg
+checkbox msg name isChecked =
+    label
+        [ style [ ( "padding", "5px" ) ]
+        ]
+        [ input [ type' "checkbox", onCheck msg, checked isChecked ] []
+        , text name
         ]
 
 
@@ -191,40 +273,67 @@ viewPackages : List Package -> Html Msg
 viewPackages pkgs =
     let
         viewPkg pkg =
-            div
-                [ class "package"
-                ]
-                [ h1 [ class "name" ] [ a [ href <| "http://package.elm-lang.org/packages/" ++ pkg.name ++ "/latest" ] [ text pkg.name ] ]
-                , deprecationWarning pkg.deprecated
-                , div [ class "summary" ] [ text <| pkg.summary ]
-                , div [ class "metrics" ]
-                    [ iconCount "star gold" "stars" pkg.stars
-                    , case pkg.license of
-                        Nothing ->
-                            div [ class "metric" ]
-                                [ i [ class <| "fa fa-legal purple" ] []
-                                , text " No license"
-                                ]
+            if pkg.is_project then
+                div
+                    [ class "package"
+                    ]
+                    [ h1 [ class "name" ] [ a [ href <| "http://package.elm-lang.org/packages/" ++ pkg.name ++ "/latest" ] [ text pkg.name ] ]
+                    , div [ class "summary" ] [ text <| pkg.summary ]
+                    , div [ class "metrics" ]
+                        [ iconCount "star gold" "stars" pkg.stars
+                        , case pkg.license of
+                            Nothing ->
+                                div [ class "metric" ]
+                                    [ i [ class <| "fa fa-legal purple" ] []
+                                    , text " no license"
+                                    ]
 
-                        Just license ->
-                            div [ class "metric" ]
-                                [ i [ class <| "fa fa-legal purple" ] []
-                                , text <| " " ++ license
-                                ]
-                      -- , iconCount "code-fork" "forks" pkg.forks
-                      -- , iconCount "eye" "watchers" pkg.watchers
-                      -- , iconCount "exclamation" "open issues" pkg.open_issues
-                    , has "0.17 compatible" pkg.is_current
-                      --, has "tests" pkg.has_tests
-                      --, has "examples" pkg.has_examples
-                    , cornerStone "package-svg-bottom-right" AllColors
+                            Just license ->
+                                div [ class "metric" ]
+                                    [ i [ class <| "fa fa-legal purple" ] []
+                                    , text <| " " ++ license
+                                    ]
+                        , cornerStone "package-svg-bottom-right" AllColors
+                        ]
+                    , div [ class "links" ]
+                        [ a [ class "pkg-link", href <| "http://github.com/" ++ pkg.name ] [ text "source" ]
+                        ]
                     ]
-                , div [ class "links" ]
-                    [ a [ class "pkg-link", href <| "http://package.elm-lang.org/packages/" ++ pkg.name ++ "/latest" ] [ text "docs" ]
-                    , a [ class "pkg-link", href <| "http://github.com/" ++ pkg.name ] [ text "source" ]
-                    , a [ class "pkg-link", href "google.com" ] [ text "who uses this?" ]
+            else
+                div
+                    [ class "package"
                     ]
-                ]
+                    [ h1 [ class "name" ] [ a [ href <| "http://package.elm-lang.org/packages/" ++ pkg.name ++ "/latest" ] [ text pkg.name ] ]
+                    , div [ class "summary" ] [ text <| pkg.summary ]
+                    , div [ class "metrics" ]
+                        [ iconCount "star gold" "stars" pkg.stars
+                        , case pkg.license of
+                            Nothing ->
+                                div [ class "metric" ]
+                                    [ i [ class <| "fa fa-legal purple" ] []
+                                    , text " No license"
+                                    ]
+
+                            Just license ->
+                                div [ class "metric" ]
+                                    [ i [ class <| "fa fa-legal purple" ] []
+                                    , text <| " " ++ license
+                                    ]
+                          -- , iconCount "code-fork" "forks" pkg.forks
+                          -- , iconCount "eye" "watchers" pkg.watchers
+                          -- , iconCount "exclamation" "open issues" pkg.open_issues
+                        , has "0.17 compatible" pkg.is_current
+                          --, has "tests" pkg.has_tests
+                          --, has "examples" pkg.has_examples
+                        , cornerStone "package-svg-bottom-right" AllColors
+                        ]
+                    , div [ class "links" ]
+                        [ a [ class "pkg-link", href <| "http://package.elm-lang.org/packages/" ++ pkg.name ++ "/latest" ] [ text "docs" ]
+                        , a [ class "pkg-link", href <| "http://github.com/" ++ pkg.name ] [ text "source" ]
+                        , a [ class "pkg-link", href "google.com" ] [ text "who uses this?" ]
+                        ]
+                    , flags (not pkg.is_project) pkg.deprecated
+                    ]
     in
         div
             [ style
@@ -312,16 +421,28 @@ iconCount icon label metric =
         ]
 
 
+flags : Bool -> Bool -> Html Msg
+flags isPackage deprecated =
+    div [ class "flags" ]
+        [ deprecationWarning deprecated
+          --, if isPackage then
+          --    span [ class "is-package" ]
+          --        [ text "elm package"
+          --        ]
+          --  else
+          --    text ""
+        ]
+
+
 deprecationWarning : Bool -> Html Msg
 deprecationWarning deprecated =
     if deprecated then
         span [ class "deprecation-warning" ]
             [ i [ class "fa fa-exclamation" ] []
-            , text " Deprecated"
+            , text " deprecated"
             ]
     else
-        span []
-            []
+        text ""
 
 
 has : String -> Bool -> Html Msg

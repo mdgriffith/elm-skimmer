@@ -9119,14 +9119,22 @@ var _mdgriffith$elm_package_skimmer$Main$deprecationWarning = function (deprecat
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[])),
-				_elm_lang$html$Html$text(' Deprecated')
-			])) : A2(
-		_elm_lang$html$Html$span,
-		_elm_lang$core$Native_List.fromArray(
-			[]),
-		_elm_lang$core$Native_List.fromArray(
-			[]));
+				_elm_lang$html$Html$text(' deprecated')
+			])) : _elm_lang$html$Html$text('');
 };
+var _mdgriffith$elm_package_skimmer$Main$flags = F2(
+	function (isPackage, deprecated) {
+		return A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$class('flags')
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_mdgriffith$elm_package_skimmer$Main$deprecationWarning(deprecated)
+				]));
+	});
 var _mdgriffith$elm_package_skimmer$Main$iconCount = F3(
 	function (icon, label, metric) {
 		return A2(
@@ -9156,75 +9164,145 @@ var _mdgriffith$elm_package_skimmer$Main$iconCount = F3(
 							A2(_elm_lang$core$Basics_ops['++'], ' ', label))))
 				]));
 	});
+var _mdgriffith$elm_package_skimmer$Main$checkbox = F3(
+	function (msg, name, isChecked) {
+		return A2(
+			_elm_lang$html$Html$label,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$style(
+					_elm_lang$core$Native_List.fromArray(
+						[
+							{ctor: '_Tuple2', _0: 'padding', _1: '5px'}
+						]))
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					A2(
+					_elm_lang$html$Html$input,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$type$('checkbox'),
+							_elm_lang$html$Html_Events$onCheck(msg),
+							_elm_lang$html$Html_Attributes$checked(isChecked)
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[])),
+					_elm_lang$html$Html$text(name)
+				]));
+	});
 var _mdgriffith$elm_package_skimmer$Main$searchFor = F2(
 	function (query, packages) {
-		if (_elm_lang$core$Native_Utils.eq(query, '')) {
-			return packages;
-		} else {
-			var queryTerms = _elm_lang$core$String$words(
-				_elm_lang$core$String$toLower(query));
-			var matchesQueryTerms = function (pkg) {
-				var lowerSummary = _elm_lang$core$String$toLower(pkg.summary);
-				var lowerName = _elm_lang$core$String$toLower(pkg.name);
-				var findTerm = function (term) {
-					return A2(_elm_lang$core$String$contains, term, lowerName) || A2(_elm_lang$core$String$contains, term, lowerSummary);
+		var searched = function () {
+			if (_elm_lang$core$Native_Utils.eq(query.search, '')) {
+				return packages;
+			} else {
+				var queryTerms = _elm_lang$core$String$words(
+					_elm_lang$core$String$toLower(query.search));
+				var matchesQueryTerms = function (pkg) {
+					var lowerSummary = _elm_lang$core$String$toLower(pkg.summary);
+					var lowerName = _elm_lang$core$String$toLower(pkg.name);
+					var findTerm = function (term) {
+						return A2(_elm_lang$core$String$contains, term, lowerName) || A2(_elm_lang$core$String$contains, term, lowerSummary);
+					};
+					return A2(_elm_lang$core$List$all, findTerm, queryTerms);
 				};
-				return A2(_elm_lang$core$List$all, findTerm, queryTerms);
-			};
-			return A2(_elm_lang$core$List$filter, matchesQueryTerms, packages);
-		}
+				return A2(_elm_lang$core$List$filter, matchesQueryTerms, packages);
+			}
+		}();
+		return A2(
+			_elm_lang$core$List$filter,
+			function (pkg) {
+				return (_elm_lang$core$Basics$not(query.projects) && pkg.is_project) ? false : ((_elm_lang$core$Basics$not(query.packages) && _elm_lang$core$Basics$not(pkg.is_project)) ? false : true);
+			},
+			searched);
 	});
 var _mdgriffith$elm_package_skimmer$Main$update = F2(
 	function (msg, model) {
 		var _p2 = msg;
-		if (_p2.ctor === 'Query') {
-			return {
-				ctor: '_Tuple2',
-				_0: _elm_lang$core$Native_Utils.update(
-					model,
-					{query: _p2._0}),
-				_1: _elm_lang$core$Platform_Cmd$none
-			};
-		} else {
-			var _p5 = _p2._0;
-			var sortedPkgs = A2(
-				_elm_lang$core$List$sortWith,
-				F2(
-					function (pkg1, pkg2) {
-						var stars = A2(_elm_lang$core$Basics$compare, pkg2.stars, pkg1.stars);
-						var boolAsInt = function (b1) {
-							return b1 ? 1 : 0;
-						};
-						var dep = A2(
-							_elm_lang$core$Basics$compare,
-							boolAsInt(
-								_elm_lang$core$Basics$not(pkg2.deprecated)),
-							boolAsInt(
-								_elm_lang$core$Basics$not(pkg1.deprecated)));
-						var current = A2(
-							_elm_lang$core$Basics$compare,
-							boolAsInt(pkg2.is_current),
-							boolAsInt(pkg1.is_current));
-						var _p3 = current;
-						if (_p3.ctor === 'EQ') {
-							var _p4 = dep;
-							if (_p4.ctor === 'EQ') {
-								return stars;
-							} else {
-								return dep;
+		switch (_p2.ctor) {
+			case 'Search':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							query: {search: _p2._0, projects: model.query.projects, packages: model.query.packages}
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'SeePackages':
+				var _p3 = _p2._0;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							query: {
+								search: model.query.search,
+								projects: _elm_lang$core$Basics$not(_p3),
+								packages: _p3
 							}
-						} else {
-							return current;
-						}
-					}),
-				_p5.packages);
-			return {
-				ctor: '_Tuple2',
-				_0: _elm_lang$core$Native_Utils.update(
-					model,
-					{packages: sortedPkgs, retrieved: _p5.retrieved}),
-				_1: _elm_lang$core$Platform_Cmd$none
-			};
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'SeeProjects':
+				var _p4 = _p2._0;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							query: {
+								search: model.query.search,
+								projects: _p4,
+								packages: _elm_lang$core$Basics$not(_p4)
+							}
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			default:
+				var _p7 = _p2._0;
+				var sortedPkgs = A2(
+					_elm_lang$core$List$sortWith,
+					F2(
+						function (pkg1, pkg2) {
+							var stars = A2(_elm_lang$core$Basics$compare, pkg2.stars, pkg1.stars);
+							var boolAsInt = function (b1) {
+								return b1 ? 1 : 0;
+							};
+							var dep = A2(
+								_elm_lang$core$Basics$compare,
+								boolAsInt(
+									_elm_lang$core$Basics$not(pkg2.deprecated)),
+								boolAsInt(
+									_elm_lang$core$Basics$not(pkg1.deprecated)));
+							var current = A2(
+								_elm_lang$core$Basics$compare,
+								boolAsInt(
+									pkg2.is_project ? true : pkg2.is_current),
+								boolAsInt(
+									pkg1.is_project ? true : pkg1.is_current));
+							var _p5 = current;
+							if (_p5.ctor === 'EQ') {
+								var _p6 = dep;
+								if (_p6.ctor === 'EQ') {
+									return stars;
+								} else {
+									return dep;
+								}
+							} else {
+								return current;
+							}
+						}),
+					_p7.packages);
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{packages: sortedPkgs, retrieved: _p7.retrieved}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 		}
 	});
 var _mdgriffith$elm_package_skimmer$Main$init = {
@@ -9233,7 +9311,7 @@ var _mdgriffith$elm_package_skimmer$Main$init = {
 		retrieved: 'never',
 		packages: _elm_lang$core$Native_List.fromArray(
 			[]),
-		query: ''
+		query: {search: '', projects: false, packages: true}
 	},
 	_1: _elm_lang$core$Platform_Cmd$none
 };
@@ -9259,57 +9337,93 @@ var _mdgriffith$elm_package_skimmer$Main$packages = _elm_lang$core$Native_Platfo
 									function (deprecated) {
 										return A2(
 											_elm_lang$core$Json_Decode$andThen,
-											A2(_elm_lang$core$Json_Decode_ops[':='], 'summary', _elm_lang$core$Json_Decode$string),
-											function (summary) {
+											A2(
+												_elm_lang$core$Json_Decode_ops[':='],
+												'deprecation_redirect',
+												_elm_lang$core$Json_Decode$oneOf(
+													_elm_lang$core$Native_List.fromArray(
+														[
+															_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+															A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string)
+														]))),
+											function (deprecation_redirect) {
 												return A2(
 													_elm_lang$core$Json_Decode$andThen,
-													A2(_elm_lang$core$Json_Decode_ops[':='], 'is_current', _elm_lang$core$Json_Decode$bool),
-													function (is_current) {
+													A2(_elm_lang$core$Json_Decode_ops[':='], 'summary', _elm_lang$core$Json_Decode$string),
+													function (summary) {
 														return A2(
 															_elm_lang$core$Json_Decode$andThen,
-															A2(_elm_lang$core$Json_Decode_ops[':='], 'stars', _elm_lang$core$Json_Decode$int),
-															function (stars) {
+															A2(_elm_lang$core$Json_Decode_ops[':='], 'is_current', _elm_lang$core$Json_Decode$bool),
+															function (is_current) {
 																return A2(
 																	_elm_lang$core$Json_Decode$andThen,
-																	A2(_elm_lang$core$Json_Decode_ops[':='], 'forks', _elm_lang$core$Json_Decode$int),
-																	function (forks) {
+																	A2(_elm_lang$core$Json_Decode_ops[':='], 'stars', _elm_lang$core$Json_Decode$int),
+																	function (stars) {
 																		return A2(
 																			_elm_lang$core$Json_Decode$andThen,
-																			A2(_elm_lang$core$Json_Decode_ops[':='], 'watchers', _elm_lang$core$Json_Decode$int),
-																			function (watchers) {
+																			A2(_elm_lang$core$Json_Decode_ops[':='], 'forks', _elm_lang$core$Json_Decode$int),
+																			function (forks) {
 																				return A2(
 																					_elm_lang$core$Json_Decode$andThen,
-																					A2(_elm_lang$core$Json_Decode_ops[':='], 'open_issues', _elm_lang$core$Json_Decode$int),
-																					function (open_issues) {
+																					A2(_elm_lang$core$Json_Decode_ops[':='], 'watchers', _elm_lang$core$Json_Decode$int),
+																					function (watchers) {
 																						return A2(
 																							_elm_lang$core$Json_Decode$andThen,
-																							A2(_elm_lang$core$Json_Decode_ops[':='], 'has_tests', _elm_lang$core$Json_Decode$bool),
-																							function (has_tests) {
+																							A2(_elm_lang$core$Json_Decode_ops[':='], 'open_issues', _elm_lang$core$Json_Decode$int),
+																							function (open_issues) {
 																								return A2(
 																									_elm_lang$core$Json_Decode$andThen,
-																									A2(_elm_lang$core$Json_Decode_ops[':='], 'has_examples', _elm_lang$core$Json_Decode$bool),
-																									function (has_examples) {
+																									A2(_elm_lang$core$Json_Decode_ops[':='], 'has_tests', _elm_lang$core$Json_Decode$bool),
+																									function (has_tests) {
 																										return A2(
 																											_elm_lang$core$Json_Decode$andThen,
-																											A2(
-																												_elm_lang$core$Json_Decode_ops[':='],
-																												'versions',
-																												_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string)),
-																											function (versions) {
+																											A2(_elm_lang$core$Json_Decode_ops[':='], 'has_examples', _elm_lang$core$Json_Decode$bool),
+																											function (has_examples) {
 																												return A2(
 																													_elm_lang$core$Json_Decode$andThen,
 																													A2(
 																														_elm_lang$core$Json_Decode_ops[':='],
-																														'license',
+																														'versions',
 																														_elm_lang$core$Json_Decode$oneOf(
 																															_elm_lang$core$Native_List.fromArray(
 																																[
 																																	_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
-																																	A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string)
+																																	A2(
+																																	_elm_lang$core$Json_Decode$map,
+																																	_elm_lang$core$Maybe$Just,
+																																	_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string))
 																																]))),
-																													function (license) {
-																														return _elm_lang$core$Json_Decode$succeed(
-																															{name: name, deprecated: deprecated, summary: summary, is_current: is_current, stars: stars, forks: forks, watchers: watchers, open_issues: open_issues, has_tests: has_tests, has_examples: has_examples, versions: versions, license: license});
+																													function (versions) {
+																														return A2(
+																															_elm_lang$core$Json_Decode$andThen,
+																															A2(
+																																_elm_lang$core$Json_Decode_ops[':='],
+																																'license',
+																																_elm_lang$core$Json_Decode$oneOf(
+																																	_elm_lang$core$Native_List.fromArray(
+																																		[
+																																			_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+																																			A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string)
+																																		]))),
+																															function (license) {
+																																return A2(
+																																	_elm_lang$core$Json_Decode$andThen,
+																																	A2(_elm_lang$core$Json_Decode_ops[':='], 'is_project', _elm_lang$core$Json_Decode$bool),
+																																	function (is_project) {
+																																		return A2(
+																																			_elm_lang$core$Json_Decode$andThen,
+																																			A2(_elm_lang$core$Json_Decode_ops[':='], 'project_type', _elm_lang$core$Json_Decode$string),
+																																			function (project_type) {
+																																				return A2(
+																																					_elm_lang$core$Json_Decode$andThen,
+																																					A2(_elm_lang$core$Json_Decode_ops[':='], 'no_data', _elm_lang$core$Json_Decode$bool),
+																																					function (no_data) {
+																																						return _elm_lang$core$Json_Decode$succeed(
+																																							{name: name, deprecated: deprecated, deprecation_redirect: deprecation_redirect, summary: summary, is_current: is_current, stars: stars, forks: forks, watchers: watchers, open_issues: open_issues, has_tests: has_tests, has_examples: has_examples, versions: versions, license: license, is_project: is_project, project_type: project_type, no_data: no_data});
+																																					});
+																																			});
+																																	});
+																															});
 																													});
 																											});
 																									});
@@ -9343,7 +9457,15 @@ var _mdgriffith$elm_package_skimmer$Main$Package = function (a) {
 									return function (j) {
 										return function (k) {
 											return function (l) {
-												return {name: a, deprecated: b, summary: c, is_current: d, stars: e, forks: f, watchers: g, open_issues: h, has_tests: i, has_examples: j, versions: k, license: l};
+												return function (m) {
+													return function (n) {
+														return function (o) {
+															return function (p) {
+																return {name: a, deprecated: b, deprecation_redirect: c, summary: d, is_current: e, stars: f, forks: g, watchers: h, open_issues: i, has_tests: j, has_examples: k, versions: l, license: m, is_project: n, project_type: o, no_data: p};
+															};
+														};
+													};
+												};
 											};
 										};
 									};
@@ -9356,11 +9478,21 @@ var _mdgriffith$elm_package_skimmer$Main$Package = function (a) {
 		};
 	};
 };
-var _mdgriffith$elm_package_skimmer$Main$Query = function (a) {
-	return {ctor: 'Query', _0: a};
+var _mdgriffith$elm_package_skimmer$Main$Query = F3(
+	function (a, b, c) {
+		return {search: a, projects: b, packages: c};
+	});
+var _mdgriffith$elm_package_skimmer$Main$SeeProjects = function (a) {
+	return {ctor: 'SeeProjects', _0: a};
 };
-var _mdgriffith$elm_package_skimmer$Main$viewToolbar = F2(
-	function (refreshed, query) {
+var _mdgriffith$elm_package_skimmer$Main$SeePackages = function (a) {
+	return {ctor: 'SeePackages', _0: a};
+};
+var _mdgriffith$elm_package_skimmer$Main$Search = function (a) {
+	return {ctor: 'Search', _0: a};
+};
+var _mdgriffith$elm_package_skimmer$Main$viewToolbar = F3(
+	function (model, refreshed, query) {
 		return A2(
 			_elm_lang$html$Html$div,
 			_elm_lang$core$Native_List.fromArray(
@@ -9425,11 +9557,13 @@ var _mdgriffith$elm_package_skimmer$Main$viewToolbar = F2(
 									_elm_lang$html$Html_Attributes$class('search'),
 									_elm_lang$html$Html_Attributes$placeholder('Search'),
 									_elm_lang$html$Html_Attributes$value(query),
-									_elm_lang$html$Html_Events$onInput(_mdgriffith$elm_package_skimmer$Main$Query),
+									_elm_lang$html$Html_Events$onInput(_mdgriffith$elm_package_skimmer$Main$Search),
 									_elm_lang$html$Html_Attributes$autofocus(true)
 								]),
 							_elm_lang$core$Native_List.fromArray(
 								[])),
+							A3(_mdgriffith$elm_package_skimmer$Main$checkbox, _mdgriffith$elm_package_skimmer$Main$SeePackages, ' packages', model.query.packages),
+							A3(_mdgriffith$elm_package_skimmer$Main$checkbox, _mdgriffith$elm_package_skimmer$Main$SeeProjects, ' projects', model.query.projects),
 							A2(
 							_elm_lang$html$Html$div,
 							_elm_lang$core$Native_List.fromArray(
@@ -9914,7 +10048,7 @@ var _mdgriffith$elm_package_skimmer$Main$viewSidebar = _elm_lang$core$Native_Lis
 var _mdgriffith$elm_package_skimmer$Main$AllColors = {ctor: 'AllColors'};
 var _mdgriffith$elm_package_skimmer$Main$viewPackages = function (pkgs) {
 	var viewPkg = function (pkg) {
-		return A2(
+		return pkg.is_project ? A2(
 			_elm_lang$html$Html$div,
 			_elm_lang$core$Native_List.fromArray(
 				[
@@ -9945,7 +10079,6 @@ var _mdgriffith$elm_package_skimmer$Main$viewPackages = function (pkgs) {
 									_elm_lang$html$Html$text(pkg.name)
 								]))
 						])),
-					_mdgriffith$elm_package_skimmer$Main$deprecationWarning(pkg.deprecated),
 					A2(
 					_elm_lang$html$Html$div,
 					_elm_lang$core$Native_List.fromArray(
@@ -9966,8 +10099,124 @@ var _mdgriffith$elm_package_skimmer$Main$viewPackages = function (pkgs) {
 						[
 							A3(_mdgriffith$elm_package_skimmer$Main$iconCount, 'star gold', 'stars', pkg.stars),
 							function () {
-							var _p6 = pkg.license;
-							if (_p6.ctor === 'Nothing') {
+							var _p8 = pkg.license;
+							if (_p8.ctor === 'Nothing') {
+								return A2(
+									_elm_lang$html$Html$div,
+									_elm_lang$core$Native_List.fromArray(
+										[
+											_elm_lang$html$Html_Attributes$class('metric')
+										]),
+									_elm_lang$core$Native_List.fromArray(
+										[
+											A2(
+											_elm_lang$html$Html$i,
+											_elm_lang$core$Native_List.fromArray(
+												[
+													_elm_lang$html$Html_Attributes$class('fa fa-legal purple')
+												]),
+											_elm_lang$core$Native_List.fromArray(
+												[])),
+											_elm_lang$html$Html$text(' no license')
+										]));
+							} else {
+								return A2(
+									_elm_lang$html$Html$div,
+									_elm_lang$core$Native_List.fromArray(
+										[
+											_elm_lang$html$Html_Attributes$class('metric')
+										]),
+									_elm_lang$core$Native_List.fromArray(
+										[
+											A2(
+											_elm_lang$html$Html$i,
+											_elm_lang$core$Native_List.fromArray(
+												[
+													_elm_lang$html$Html_Attributes$class('fa fa-legal purple')
+												]),
+											_elm_lang$core$Native_List.fromArray(
+												[])),
+											_elm_lang$html$Html$text(
+											A2(_elm_lang$core$Basics_ops['++'], ' ', _p8._0))
+										]));
+							}
+						}(),
+							A2(_mdgriffith$elm_package_skimmer$Main$cornerStone, 'package-svg-bottom-right', _mdgriffith$elm_package_skimmer$Main$AllColors)
+						])),
+					A2(
+					_elm_lang$html$Html$div,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('links')
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A2(
+							_elm_lang$html$Html$a,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$class('pkg-link'),
+									_elm_lang$html$Html_Attributes$href(
+									A2(_elm_lang$core$Basics_ops['++'], 'http://github.com/', pkg.name))
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html$text('source')
+								]))
+						]))
+				])) : A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$class('package')
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					A2(
+					_elm_lang$html$Html$h1,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('name')
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A2(
+							_elm_lang$html$Html$a,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$href(
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										'http://package.elm-lang.org/packages/',
+										A2(_elm_lang$core$Basics_ops['++'], pkg.name, '/latest')))
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html$text(pkg.name)
+								]))
+						])),
+					A2(
+					_elm_lang$html$Html$div,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('summary')
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text(pkg.summary)
+						])),
+					A2(
+					_elm_lang$html$Html$div,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('metrics')
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A3(_mdgriffith$elm_package_skimmer$Main$iconCount, 'star gold', 'stars', pkg.stars),
+							function () {
+							var _p9 = pkg.license;
+							if (_p9.ctor === 'Nothing') {
 								return A2(
 									_elm_lang$html$Html$div,
 									_elm_lang$core$Native_List.fromArray(
@@ -10004,7 +10253,7 @@ var _mdgriffith$elm_package_skimmer$Main$viewPackages = function (pkgs) {
 											_elm_lang$core$Native_List.fromArray(
 												[])),
 											_elm_lang$html$Html$text(
-											A2(_elm_lang$core$Basics_ops['++'], ' ', _p6._0))
+											A2(_elm_lang$core$Basics_ops['++'], ' ', _p9._0))
 										]));
 							}
 						}(),
@@ -10057,7 +10306,11 @@ var _mdgriffith$elm_package_skimmer$Main$viewPackages = function (pkgs) {
 								[
 									_elm_lang$html$Html$text('who uses this?')
 								]))
-						]))
+						])),
+					A2(
+					_mdgriffith$elm_package_skimmer$Main$flags,
+					_elm_lang$core$Basics$not(pkg.is_project),
+					pkg.deprecated)
 				]));
 	};
 	return A2(
@@ -10100,7 +10353,7 @@ var _mdgriffith$elm_package_skimmer$Main$view = function (model) {
 			[]),
 		_elm_lang$core$Native_List.fromArray(
 			[
-				A2(_mdgriffith$elm_package_skimmer$Main$viewToolbar, model.retrieved, model.query),
+				A3(_mdgriffith$elm_package_skimmer$Main$viewToolbar, model, model.retrieved, model.query.search),
 				_mdgriffith$elm_package_skimmer$Main$viewPackages(
 				A2(_mdgriffith$elm_package_skimmer$Main$searchFor, model.query, model.packages))
 			]));
