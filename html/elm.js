@@ -9182,8 +9182,8 @@ var _mdgriffith$elm_package_skimmer$Main$lookupCount = F2(
 						},
 						cache))));
 	});
-var _mdgriffith$elm_package_skimmer$Main$checkbox = F3(
-	function (msg, name, isChecked) {
+var _mdgriffith$elm_package_skimmer$Main$radio = F3(
+	function (value, msg, isChecked) {
 		return A2(
 			_elm_lang$html$Html$label,
 			_elm_lang$core$Native_List.fromArray(
@@ -9191,7 +9191,7 @@ var _mdgriffith$elm_package_skimmer$Main$checkbox = F3(
 					_elm_lang$html$Html_Attributes$style(
 					_elm_lang$core$Native_List.fromArray(
 						[
-							{ctor: '_Tuple2', _0: 'padding', _1: '5px'}
+							{ctor: '_Tuple2', _0: 'padding', _1: '10px'}
 						]))
 				]),
 			_elm_lang$core$Native_List.fromArray(
@@ -9200,13 +9200,14 @@ var _mdgriffith$elm_package_skimmer$Main$checkbox = F3(
 					_elm_lang$html$Html$input,
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_elm_lang$html$Html_Attributes$type$('checkbox'),
-							_elm_lang$html$Html_Events$onCheck(msg),
+							_elm_lang$html$Html_Attributes$type$('radio'),
+							_elm_lang$html$Html_Attributes$name('font-size'),
+							_elm_lang$html$Html_Events$onClick(msg),
 							_elm_lang$html$Html_Attributes$checked(isChecked)
 						]),
 					_elm_lang$core$Native_List.fromArray(
 						[])),
-					_elm_lang$html$Html$text(name)
+					_elm_lang$html$Html$text(value)
 				]));
 	});
 var _mdgriffith$elm_package_skimmer$Main$searchFor = F2(
@@ -9520,46 +9521,36 @@ var _mdgriffith$elm_package_skimmer$Main$update = F2(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'SeePackages':
-				var _p8 = _p6._0;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							query: {
-								search: model.query.search,
-								projects: _elm_lang$core$Basics$not(_p8),
-								packages: _p8
-							}
+							query: {search: model.query.search, projects: false, packages: true}
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'SeeProjects':
-				var _p9 = _p6._0;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							query: {
-								search: model.query.search,
-								projects: _p9,
-								packages: _elm_lang$core$Basics$not(_p9)
-							}
+							query: {search: model.query.search, projects: true, packages: false}
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'LoadDeps':
-				var _p10 = A2(_elm_lang$core$Json_Decode$decodeValue, _mdgriffith$elm_package_skimmer$Main$decodeDeps, _p6._0);
-				if (_p10.ctor === 'Ok') {
-					var _p13 = _p10._0;
+				var _p8 = A2(_elm_lang$core$Json_Decode$decodeValue, _mdgriffith$elm_package_skimmer$Main$decodeDeps, _p6._0);
+				if (_p8.ctor === 'Ok') {
+					var _p11 = _p8._0;
 					var sortedDeps = A2(
 						_elm_lang$core$List$map,
-						function (_p11) {
-							var _p12 = _p11;
+						function (_p9) {
+							var _p10 = _p9;
 							return {
 								ctor: '_Tuple2',
-								_0: _p12._0,
+								_0: _p10._0,
 								_1: A2(
 									_elm_lang$core$List$sortWith,
 									F2(
@@ -9571,17 +9562,17 @@ var _mdgriffith$elm_package_skimmer$Main$update = F2(
 												_mdgriffith$elm_package_skimmer$Main$decodeVersion(
 													_elm_lang$core$Basics$fst(d1)));
 										}),
-									_p12._1)
+									_p10._1)
 							};
 						},
-						_p13);
+						_p11);
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{
 								deps: sortedDeps,
-								depCount: A2(_elm_lang$core$List$map, _mdgriffith$elm_package_skimmer$Main$getDepCount, _p13)
+								depCount: A2(_elm_lang$core$List$map, _mdgriffith$elm_package_skimmer$Main$getDepCount, _p11)
 							}),
 						_elm_lang$core$Native_List.fromArray(
 							[]));
@@ -9593,7 +9584,7 @@ var _mdgriffith$elm_package_skimmer$Main$update = F2(
 							[]));
 				}
 			default:
-				var _p16 = _p6._0;
+				var _p14 = _p6._0;
 				var sortedPkgs = A2(
 					_elm_lang$core$List$sortWith,
 					F2(
@@ -9614,10 +9605,10 @@ var _mdgriffith$elm_package_skimmer$Main$update = F2(
 									pkg2.is_project ? true : pkg2.is_current),
 								boolAsInt(
 									pkg1.is_project ? true : pkg1.is_current));
-							var _p14 = current;
-							if (_p14.ctor === 'EQ') {
-								var _p15 = dep;
-								if (_p15.ctor === 'EQ') {
+							var _p12 = current;
+							if (_p12.ctor === 'EQ') {
+								var _p13 = dep;
+								if (_p13.ctor === 'EQ') {
 									return stars;
 								} else {
 									return dep;
@@ -9626,12 +9617,12 @@ var _mdgriffith$elm_package_skimmer$Main$update = F2(
 								return current;
 							}
 						}),
-					_p16.packages);
+					_p14.packages);
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{packages: sortedPkgs, retrieved: _p16.retrieved}),
+						{packages: sortedPkgs, retrieved: _p14.retrieved}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 		}
@@ -9640,12 +9631,8 @@ var _mdgriffith$elm_package_skimmer$Main$GotoOverview = {ctor: 'GotoOverview'};
 var _mdgriffith$elm_package_skimmer$Main$Goto = function (a) {
 	return {ctor: 'Goto', _0: a};
 };
-var _mdgriffith$elm_package_skimmer$Main$SeeProjects = function (a) {
-	return {ctor: 'SeeProjects', _0: a};
-};
-var _mdgriffith$elm_package_skimmer$Main$SeePackages = function (a) {
-	return {ctor: 'SeePackages', _0: a};
-};
+var _mdgriffith$elm_package_skimmer$Main$SeeProjects = {ctor: 'SeeProjects'};
+var _mdgriffith$elm_package_skimmer$Main$SeePackages = {ctor: 'SeePackages'};
 var _mdgriffith$elm_package_skimmer$Main$Search = function (a) {
 	return {ctor: 'Search', _0: a};
 };
@@ -9720,8 +9707,15 @@ var _mdgriffith$elm_package_skimmer$Main$viewToolbar = F3(
 								]),
 							_elm_lang$core$Native_List.fromArray(
 								[])),
-							A3(_mdgriffith$elm_package_skimmer$Main$checkbox, _mdgriffith$elm_package_skimmer$Main$SeePackages, ' packages', model.query.packages),
-							A3(_mdgriffith$elm_package_skimmer$Main$checkbox, _mdgriffith$elm_package_skimmer$Main$SeeProjects, ' projects', model.query.projects),
+							A2(
+							_elm_lang$html$Html$fieldset,
+							_elm_lang$core$Native_List.fromArray(
+								[]),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									A3(_mdgriffith$elm_package_skimmer$Main$radio, ' packages', _mdgriffith$elm_package_skimmer$Main$SeePackages, model.query.packages),
+									A3(_mdgriffith$elm_package_skimmer$Main$radio, ' projects', _mdgriffith$elm_package_skimmer$Main$SeeProjects, model.query.projects)
+								])),
 							A2(
 							_elm_lang$html$Html$div,
 							_elm_lang$core$Native_List.fromArray(
@@ -10263,8 +10257,8 @@ var _mdgriffith$elm_package_skimmer$Main$viewPackages = F2(
 							[
 								A3(_mdgriffith$elm_package_skimmer$Main$iconCount, 'star gold', 'stars', pkg.stars),
 								function () {
-								var _p17 = pkg.license;
-								if (_p17.ctor === 'Nothing') {
+								var _p15 = pkg.license;
+								if (_p15.ctor === 'Nothing') {
 									return A2(
 										_elm_lang$html$Html$div,
 										_elm_lang$core$Native_List.fromArray(
@@ -10301,7 +10295,7 @@ var _mdgriffith$elm_package_skimmer$Main$viewPackages = F2(
 												_elm_lang$core$Native_List.fromArray(
 													[])),
 												_elm_lang$html$Html$text(
-												A2(_elm_lang$core$Basics_ops['++'], ' ', _p17._0))
+												A2(_elm_lang$core$Basics_ops['++'], ' ', _p15._0))
 											]));
 								}
 							}(),
@@ -10379,8 +10373,8 @@ var _mdgriffith$elm_package_skimmer$Main$viewPackages = F2(
 							[
 								A3(_mdgriffith$elm_package_skimmer$Main$iconCount, 'star gold', 'stars', pkg.stars),
 								function () {
-								var _p18 = pkg.license;
-								if (_p18.ctor === 'Nothing') {
+								var _p16 = pkg.license;
+								if (_p16.ctor === 'Nothing') {
 									return A2(
 										_elm_lang$html$Html$div,
 										_elm_lang$core$Native_List.fromArray(
@@ -10417,7 +10411,7 @@ var _mdgriffith$elm_package_skimmer$Main$viewPackages = F2(
 												_elm_lang$core$Native_List.fromArray(
 													[])),
 												_elm_lang$html$Html$text(
-												A2(_elm_lang$core$Basics_ops['++'], ' ', _p18._0))
+												A2(_elm_lang$core$Basics_ops['++'], ' ', _p16._0))
 											]));
 								}
 							}(),
@@ -10527,8 +10521,8 @@ var _mdgriffith$elm_package_skimmer$Main$viewPackages = F2(
 				]));
 	});
 var _mdgriffith$elm_package_skimmer$Main$view = function (model) {
-	var _p19 = model.location;
-	if (_p19.ctor === 'Overview') {
+	var _p17 = model.location;
+	if (_p17.ctor === 'Overview') {
 		return A2(
 			_elm_lang$html$Html$div,
 			_elm_lang$core$Native_List.fromArray(
@@ -10542,8 +10536,8 @@ var _mdgriffith$elm_package_skimmer$Main$view = function (model) {
 					A2(_mdgriffith$elm_package_skimmer$Main$searchFor, model.query, model.packages))
 				]));
 	} else {
-		var viewVersion = function (_p20) {
-			var _p21 = _p20;
+		var viewVersion = function (_p18) {
+			var _p19 = _p18;
 			return A2(
 				_elm_lang$html$Html$div,
 				_elm_lang$core$Native_List.fromArray(
@@ -10558,7 +10552,7 @@ var _mdgriffith$elm_package_skimmer$Main$view = function (model) {
 							[]),
 						_elm_lang$core$Native_List.fromArray(
 							[
-								_elm_lang$html$Html$text(_p21._0)
+								_elm_lang$html$Html$text(_p19._0)
 							])),
 						A2(
 						_elm_lang$html$Html$div,
@@ -10586,7 +10580,7 @@ var _mdgriffith$elm_package_skimmer$Main$view = function (model) {
 											_elm_lang$html$Html$text(u)
 										]));
 							},
-							_p21._1))
+							_p19._1))
 					]));
 		};
 		return A2(
@@ -10603,7 +10597,7 @@ var _mdgriffith$elm_package_skimmer$Main$view = function (model) {
 						[]),
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_elm_lang$html$Html$text(_p19._0._0)
+							_elm_lang$html$Html$text(_p17._0._0)
 						])),
 					A2(
 					_elm_lang$html$Html$a,
@@ -10619,7 +10613,7 @@ var _mdgriffith$elm_package_skimmer$Main$view = function (model) {
 					_elm_lang$html$Html$div,
 					_elm_lang$core$Native_List.fromArray(
 						[]),
-					A2(_elm_lang$core$List$map, viewVersion, _p19._0._1))
+					A2(_elm_lang$core$List$map, viewVersion, _p17._0._1))
 				]));
 	}
 };

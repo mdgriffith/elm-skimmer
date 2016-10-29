@@ -89,8 +89,8 @@ type Msg
         }
     | LoadDeps Json.Decode.Value
     | Search String
-    | SeePackages Bool
-    | SeeProjects Bool
+    | SeePackages
+    | SeeProjects
     | Goto String
     | GotoOverview
 
@@ -187,23 +187,23 @@ update msg model =
             , Cmd.none
             )
 
-        SeePackages see ->
+        SeePackages ->
             ( { model
                 | query =
                     { search = model.query.search
-                    , projects = not see
-                    , packages = see
+                    , projects = False
+                    , packages = True
                     }
               }
             , Cmd.none
             )
 
-        SeeProjects see ->
+        SeeProjects ->
             ( { model
                 | query =
                     { search = model.query.search
-                    , projects = see
-                    , packages = not see
+                    , projects = True
+                    , packages = False
                     }
               }
             , Cmd.none
@@ -401,21 +401,23 @@ viewToolbar model refreshed query =
                 , autofocus True
                 ]
                 []
-            , checkbox SeePackages " packages" model.query.packages
-            , checkbox SeeProjects " projects" model.query.projects
+            , fieldset []
+                [ radio " packages" SeePackages model.query.packages
+                , radio " projects" SeeProjects model.query.projects
+                ]
             , div [ class "last-updated" ] [ text <| "updated on " ++ refreshed ]
             ]
         , div [ style [ ( "flex", "1" ) ] ] []
         ]
 
 
-checkbox : (Bool -> msg) -> String -> Bool -> Html msg
-checkbox msg name isChecked =
+radio : String -> msg -> Bool -> Html msg
+radio value msg isChecked =
     label
-        [ style [ ( "padding", "5px" ) ]
+        [ style [ ( "padding", "10px" ) ]
         ]
-        [ input [ type' "checkbox", onCheck msg, checked isChecked ] []
-        , text name
+        [ input [ type' "radio", name "font-size", onClick msg, checked isChecked ] []
+        , text value
         ]
 
 
