@@ -31,7 +31,7 @@ def wait_for_reset_if_necessary(headers):
     remain = headers.get("X-RateLimit-Remaining", None)
     resetAt = headers.get("X-RateLimit-Reset",None)
 
-    if limit is not None and remain is not None and resetAt is not None:
+    if resetAt is not None:
         if remain == 0:
             now_epoch = time.time()
             waitFor = resetAt - now_epoch

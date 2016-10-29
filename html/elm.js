@@ -9164,6 +9164,24 @@ var _mdgriffith$elm_package_skimmer$Main$iconCount = F3(
 							A2(_elm_lang$core$Basics_ops['++'], ' ', label))))
 				]));
 	});
+var _mdgriffith$elm_package_skimmer$Main$lookupCount = F2(
+	function (cache, name) {
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			0,
+			_elm_lang$core$List$head(
+				A2(
+					_elm_lang$core$List$map,
+					_elm_lang$core$Basics$snd,
+					A2(
+						_elm_lang$core$List$filter,
+						function (x) {
+							return _elm_lang$core$Native_Utils.eq(
+								_elm_lang$core$Basics$fst(x),
+								name);
+						},
+						cache))));
+	});
 var _mdgriffith$elm_package_skimmer$Main$checkbox = F3(
 	function (msg, name, isChecked) {
 		return A2(
@@ -9217,104 +9235,58 @@ var _mdgriffith$elm_package_skimmer$Main$searchFor = F2(
 			},
 			searched);
 	});
-var _mdgriffith$elm_package_skimmer$Main$update = F2(
-	function (msg, model) {
-		var _p2 = msg;
-		switch (_p2.ctor) {
-			case 'Search':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							query: {search: _p2._0, projects: model.query.projects, packages: model.query.packages}
-						}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'SeePackages':
-				var _p3 = _p2._0;
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							query: {
-								search: model.query.search,
-								projects: _elm_lang$core$Basics$not(_p3),
-								packages: _p3
-							}
-						}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'SeeProjects':
-				var _p4 = _p2._0;
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							query: {
-								search: model.query.search,
-								projects: _p4,
-								packages: _elm_lang$core$Basics$not(_p4)
-							}
-						}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			default:
-				var _p7 = _p2._0;
-				var sortedPkgs = A2(
-					_elm_lang$core$List$sortWith,
-					F2(
-						function (pkg1, pkg2) {
-							var stars = A2(_elm_lang$core$Basics$compare, pkg2.stars, pkg1.stars);
-							var boolAsInt = function (b1) {
-								return b1 ? 1 : 0;
-							};
-							var dep = A2(
-								_elm_lang$core$Basics$compare,
-								boolAsInt(
-									_elm_lang$core$Basics$not(pkg2.deprecated)),
-								boolAsInt(
-									_elm_lang$core$Basics$not(pkg1.deprecated)));
-							var current = A2(
-								_elm_lang$core$Basics$compare,
-								boolAsInt(
-									pkg2.is_project ? true : pkg2.is_current),
-								boolAsInt(
-									pkg1.is_project ? true : pkg1.is_current));
-							var _p5 = current;
-							if (_p5.ctor === 'EQ') {
-								var _p6 = dep;
-								if (_p6.ctor === 'EQ') {
-									return stars;
-								} else {
-									return dep;
-								}
-							} else {
-								return current;
-							}
-						}),
-					_p7.packages);
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{packages: sortedPkgs, retrieved: _p7.retrieved}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-		}
-	});
-var _mdgriffith$elm_package_skimmer$Main$init = {
-	ctor: '_Tuple2',
-	_0: {
-		retrieved: 'never',
-		packages: _elm_lang$core$Native_List.fromArray(
-			[]),
-		query: {search: '', projects: false, packages: true}
-	},
-	_1: _elm_lang$core$Platform_Cmd$none
+var _mdgriffith$elm_package_skimmer$Main$toVers = function (versions) {
+	var asNums = A2(
+		_elm_lang$core$List$filterMap,
+		function (_p2) {
+			return _elm_lang$core$Result$toMaybe(
+				_elm_lang$core$String$toInt(_p2));
+		},
+		versions);
+	var first = A2(
+		_elm_lang$core$Maybe$withDefault,
+		0,
+		_elm_lang$core$List$head(asNums));
+	var second = A2(
+		_elm_lang$core$Maybe$withDefault,
+		0,
+		_elm_lang$core$List$head(
+			A2(_elm_lang$core$List$drop, 1, asNums)));
+	var third = A2(
+		_elm_lang$core$Maybe$withDefault,
+		0,
+		_elm_lang$core$List$head(
+			A2(_elm_lang$core$List$drop, 2, asNums)));
+	return {ctor: '_Tuple3', _0: first, _1: second, _2: third};
 };
+var _mdgriffith$elm_package_skimmer$Main$decodeVersion = function (str) {
+	var upper = _mdgriffith$elm_package_skimmer$Main$toVers(
+		A2(
+			_elm_lang$core$String$split,
+			'.',
+			A2(_elm_lang$core$String$right, 5, str)));
+	var lower = _mdgriffith$elm_package_skimmer$Main$toVers(
+		A2(
+			_elm_lang$core$String$split,
+			'.',
+			A2(_elm_lang$core$String$left, 5, str)));
+	return {ctor: '_Tuple2', _0: upper, _1: lower};
+};
+var _mdgriffith$elm_package_skimmer$Main$getDepCount = function (_p3) {
+	var _p4 = _p3;
+	var count = _elm_lang$core$List$sum(
+		A2(
+			_elm_lang$core$List$map,
+			function (_p5) {
+				return _elm_lang$core$List$length(
+					_elm_lang$core$Basics$snd(_p5));
+			},
+			_p4._1));
+	return {ctor: '_Tuple2', _0: _p4._0, _1: count};
+};
+var _mdgriffith$elm_package_skimmer$Main$decodeDep = _elm_lang$core$Json_Decode$keyValuePairs(
+	_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string));
+var _mdgriffith$elm_package_skimmer$Main$decodeDeps = _elm_lang$core$Json_Decode$keyValuePairs(_mdgriffith$elm_package_skimmer$Main$decodeDep);
 var _mdgriffith$elm_package_skimmer$Main$packages = _elm_lang$core$Native_Platform.incomingPort(
 	'packages',
 	A2(
@@ -9441,9 +9413,10 @@ var _mdgriffith$elm_package_skimmer$Main$packages = _elm_lang$core$Native_Platfo
 						{retrieved: retrieved, packages: packages});
 				});
 		}));
-var _mdgriffith$elm_package_skimmer$Main$Model = F3(
-	function (a, b, c) {
-		return {retrieved: a, packages: b, query: c};
+var _mdgriffith$elm_package_skimmer$Main$deps = _elm_lang$core$Native_Platform.incomingPort('deps', _elm_lang$core$Json_Decode$value);
+var _mdgriffith$elm_package_skimmer$Main$Model = F6(
+	function (a, b, c, d, e, f) {
+		return {retrieved: a, packages: b, query: c, deps: d, depCount: e, location: f};
 	});
 var _mdgriffith$elm_package_skimmer$Main$Package = function (a) {
 	return function (b) {
@@ -9482,6 +9455,191 @@ var _mdgriffith$elm_package_skimmer$Main$Query = F3(
 	function (a, b, c) {
 		return {search: a, projects: b, packages: c};
 	});
+var _mdgriffith$elm_package_skimmer$Main$PackageOverview = function (a) {
+	return {ctor: 'PackageOverview', _0: a};
+};
+var _mdgriffith$elm_package_skimmer$Main$Overview = {ctor: 'Overview'};
+var _mdgriffith$elm_package_skimmer$Main$init = {
+	ctor: '_Tuple2',
+	_0: {
+		retrieved: 'never',
+		packages: _elm_lang$core$Native_List.fromArray(
+			[]),
+		query: {search: '', projects: false, packages: true},
+		deps: _elm_lang$core$Native_List.fromArray(
+			[]),
+		location: _mdgriffith$elm_package_skimmer$Main$Overview,
+		depCount: _elm_lang$core$Native_List.fromArray(
+			[])
+	},
+	_1: _elm_lang$core$Platform_Cmd$none
+};
+var _mdgriffith$elm_package_skimmer$Main$update = F2(
+	function (msg, model) {
+		var _p6 = msg;
+		switch (_p6.ctor) {
+			case 'Goto':
+				var _p7 = _elm_lang$core$List$head(
+					A2(
+						_elm_lang$core$List$filter,
+						function (dep) {
+							return _elm_lang$core$Native_Utils.eq(
+								_elm_lang$core$Basics$fst(dep),
+								_p6._0);
+						},
+						model.deps));
+				if (_p7.ctor === 'Nothing') {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				} else {
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								location: _mdgriffith$elm_package_skimmer$Main$PackageOverview(_p7._0)
+							}),
+						_elm_lang$core$Native_List.fromArray(
+							[]));
+				}
+			case 'GotoOverview':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{location: _mdgriffith$elm_package_skimmer$Main$Overview}),
+					_elm_lang$core$Native_List.fromArray(
+						[]));
+			case 'Search':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							query: {search: _p6._0, projects: model.query.projects, packages: model.query.packages}
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'SeePackages':
+				var _p8 = _p6._0;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							query: {
+								search: model.query.search,
+								projects: _elm_lang$core$Basics$not(_p8),
+								packages: _p8
+							}
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'SeeProjects':
+				var _p9 = _p6._0;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							query: {
+								search: model.query.search,
+								projects: _p9,
+								packages: _elm_lang$core$Basics$not(_p9)
+							}
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'LoadDeps':
+				var _p10 = A2(_elm_lang$core$Json_Decode$decodeValue, _mdgriffith$elm_package_skimmer$Main$decodeDeps, _p6._0);
+				if (_p10.ctor === 'Ok') {
+					var _p13 = _p10._0;
+					var sortedDeps = A2(
+						_elm_lang$core$List$map,
+						function (_p11) {
+							var _p12 = _p11;
+							return {
+								ctor: '_Tuple2',
+								_0: _p12._0,
+								_1: A2(
+									_elm_lang$core$List$sortWith,
+									F2(
+										function (d1, d2) {
+											return A2(
+												_elm_lang$core$Basics$compare,
+												_mdgriffith$elm_package_skimmer$Main$decodeVersion(
+													_elm_lang$core$Basics$fst(d2)),
+												_mdgriffith$elm_package_skimmer$Main$decodeVersion(
+													_elm_lang$core$Basics$fst(d1)));
+										}),
+									_p12._1)
+							};
+						},
+						_p13);
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								deps: sortedDeps,
+								depCount: A2(_elm_lang$core$List$map, _mdgriffith$elm_package_skimmer$Main$getDepCount, _p13)
+							}),
+						_elm_lang$core$Native_List.fromArray(
+							[]));
+				} else {
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						model,
+						_elm_lang$core$Native_List.fromArray(
+							[]));
+				}
+			default:
+				var _p16 = _p6._0;
+				var sortedPkgs = A2(
+					_elm_lang$core$List$sortWith,
+					F2(
+						function (pkg1, pkg2) {
+							var stars = A2(_elm_lang$core$Basics$compare, pkg2.stars, pkg1.stars);
+							var boolAsInt = function (b1) {
+								return b1 ? 1 : 0;
+							};
+							var dep = A2(
+								_elm_lang$core$Basics$compare,
+								boolAsInt(
+									_elm_lang$core$Basics$not(pkg2.deprecated)),
+								boolAsInt(
+									_elm_lang$core$Basics$not(pkg1.deprecated)));
+							var current = A2(
+								_elm_lang$core$Basics$compare,
+								boolAsInt(
+									pkg2.is_project ? true : pkg2.is_current),
+								boolAsInt(
+									pkg1.is_project ? true : pkg1.is_current));
+							var _p14 = current;
+							if (_p14.ctor === 'EQ') {
+								var _p15 = dep;
+								if (_p15.ctor === 'EQ') {
+									return stars;
+								} else {
+									return dep;
+								}
+							} else {
+								return current;
+							}
+						}),
+					_p16.packages);
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{packages: sortedPkgs, retrieved: _p16.retrieved}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+		}
+	});
+var _mdgriffith$elm_package_skimmer$Main$GotoOverview = {ctor: 'GotoOverview'};
+var _mdgriffith$elm_package_skimmer$Main$Goto = function (a) {
+	return {ctor: 'Goto', _0: a};
+};
 var _mdgriffith$elm_package_skimmer$Main$SeeProjects = function (a) {
 	return {ctor: 'SeeProjects', _0: a};
 };
@@ -9590,11 +9748,19 @@ var _mdgriffith$elm_package_skimmer$Main$viewToolbar = F3(
 						[]))
 				]));
 	});
+var _mdgriffith$elm_package_skimmer$Main$LoadDeps = function (a) {
+	return {ctor: 'LoadDeps', _0: a};
+};
 var _mdgriffith$elm_package_skimmer$Main$Load = function (a) {
 	return {ctor: 'Load', _0: a};
 };
 var _mdgriffith$elm_package_skimmer$Main$subscriptions = function (model) {
-	return _mdgriffith$elm_package_skimmer$Main$packages(_mdgriffith$elm_package_skimmer$Main$Load);
+	return _elm_lang$core$Platform_Sub$batch(
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_mdgriffith$elm_package_skimmer$Main$packages(_mdgriffith$elm_package_skimmer$Main$Load),
+				_mdgriffith$elm_package_skimmer$Main$deps(_mdgriffith$elm_package_skimmer$Main$LoadDeps)
+			]));
 };
 var _mdgriffith$elm_package_skimmer$Main$Grey = {ctor: 'Grey'};
 var _mdgriffith$elm_package_skimmer$Main$Blue = {ctor: 'Blue'};
@@ -10046,317 +10212,416 @@ var _mdgriffith$elm_package_skimmer$Main$viewSidebar = _elm_lang$core$Native_Lis
 			]))
 	]);
 var _mdgriffith$elm_package_skimmer$Main$AllColors = {ctor: 'AllColors'};
-var _mdgriffith$elm_package_skimmer$Main$viewPackages = function (pkgs) {
-	var viewPkg = function (pkg) {
-		return pkg.is_project ? A2(
-			_elm_lang$html$Html$div,
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html_Attributes$class('package')
-				]),
-			_elm_lang$core$Native_List.fromArray(
-				[
-					A2(
-					_elm_lang$html$Html$h1,
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html_Attributes$class('name')
-						]),
-					_elm_lang$core$Native_List.fromArray(
-						[
-							A2(
-							_elm_lang$html$Html$a,
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html_Attributes$href(
-									A2(
-										_elm_lang$core$Basics_ops['++'],
-										'http://package.elm-lang.org/packages/',
-										A2(_elm_lang$core$Basics_ops['++'], pkg.name, '/latest')))
-								]),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html$text(pkg.name)
-								]))
-						])),
-					A2(
-					_elm_lang$html$Html$div,
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html_Attributes$class('summary')
-						]),
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html$text(pkg.summary)
-						])),
-					A2(
-					_elm_lang$html$Html$div,
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html_Attributes$class('metrics')
-						]),
-					_elm_lang$core$Native_List.fromArray(
-						[
-							A3(_mdgriffith$elm_package_skimmer$Main$iconCount, 'star gold', 'stars', pkg.stars),
-							function () {
-							var _p8 = pkg.license;
-							if (_p8.ctor === 'Nothing') {
-								return A2(
-									_elm_lang$html$Html$div,
-									_elm_lang$core$Native_List.fromArray(
-										[
-											_elm_lang$html$Html_Attributes$class('metric')
-										]),
-									_elm_lang$core$Native_List.fromArray(
-										[
-											A2(
-											_elm_lang$html$Html$i,
-											_elm_lang$core$Native_List.fromArray(
-												[
-													_elm_lang$html$Html_Attributes$class('fa fa-legal purple')
-												]),
-											_elm_lang$core$Native_List.fromArray(
-												[])),
-											_elm_lang$html$Html$text(' no license')
-										]));
-							} else {
-								return A2(
-									_elm_lang$html$Html$div,
-									_elm_lang$core$Native_List.fromArray(
-										[
-											_elm_lang$html$Html_Attributes$class('metric')
-										]),
-									_elm_lang$core$Native_List.fromArray(
-										[
-											A2(
-											_elm_lang$html$Html$i,
-											_elm_lang$core$Native_List.fromArray(
-												[
-													_elm_lang$html$Html_Attributes$class('fa fa-legal purple')
-												]),
-											_elm_lang$core$Native_List.fromArray(
-												[])),
-											_elm_lang$html$Html$text(
-											A2(_elm_lang$core$Basics_ops['++'], ' ', _p8._0))
-										]));
-							}
-						}(),
-							A2(_mdgriffith$elm_package_skimmer$Main$cornerStone, 'package-svg-bottom-right', _mdgriffith$elm_package_skimmer$Main$AllColors)
-						])),
-					A2(
-					_elm_lang$html$Html$div,
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html_Attributes$class('links')
-						]),
-					_elm_lang$core$Native_List.fromArray(
-						[
-							A2(
-							_elm_lang$html$Html$a,
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html_Attributes$class('pkg-link'),
-									_elm_lang$html$Html_Attributes$href(
-									A2(_elm_lang$core$Basics_ops['++'], 'http://github.com/', pkg.name))
-								]),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html$text('source')
-								]))
-						]))
-				])) : A2(
-			_elm_lang$html$Html$div,
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html_Attributes$class('package')
-				]),
-			_elm_lang$core$Native_List.fromArray(
-				[
-					A2(
-					_elm_lang$html$Html$h1,
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html_Attributes$class('name')
-						]),
-					_elm_lang$core$Native_List.fromArray(
-						[
-							A2(
-							_elm_lang$html$Html$a,
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html_Attributes$href(
-									A2(
-										_elm_lang$core$Basics_ops['++'],
-										'http://package.elm-lang.org/packages/',
-										A2(_elm_lang$core$Basics_ops['++'], pkg.name, '/latest')))
-								]),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html$text(pkg.name)
-								]))
-						])),
-					A2(
-					_elm_lang$html$Html$div,
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html_Attributes$class('summary')
-						]),
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html$text(pkg.summary)
-						])),
-					A2(
-					_elm_lang$html$Html$div,
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html_Attributes$class('metrics')
-						]),
-					_elm_lang$core$Native_List.fromArray(
-						[
-							A3(_mdgriffith$elm_package_skimmer$Main$iconCount, 'star gold', 'stars', pkg.stars),
-							function () {
-							var _p9 = pkg.license;
-							if (_p9.ctor === 'Nothing') {
-								return A2(
-									_elm_lang$html$Html$div,
-									_elm_lang$core$Native_List.fromArray(
-										[
-											_elm_lang$html$Html_Attributes$class('metric')
-										]),
-									_elm_lang$core$Native_List.fromArray(
-										[
-											A2(
-											_elm_lang$html$Html$i,
-											_elm_lang$core$Native_List.fromArray(
-												[
-													_elm_lang$html$Html_Attributes$class('fa fa-legal purple')
-												]),
-											_elm_lang$core$Native_List.fromArray(
-												[])),
-											_elm_lang$html$Html$text(' No license')
-										]));
-							} else {
-								return A2(
-									_elm_lang$html$Html$div,
-									_elm_lang$core$Native_List.fromArray(
-										[
-											_elm_lang$html$Html_Attributes$class('metric')
-										]),
-									_elm_lang$core$Native_List.fromArray(
-										[
-											A2(
-											_elm_lang$html$Html$i,
-											_elm_lang$core$Native_List.fromArray(
-												[
-													_elm_lang$html$Html_Attributes$class('fa fa-legal purple')
-												]),
-											_elm_lang$core$Native_List.fromArray(
-												[])),
-											_elm_lang$html$Html$text(
-											A2(_elm_lang$core$Basics_ops['++'], ' ', _p9._0))
-										]));
-							}
-						}(),
-							A2(_mdgriffith$elm_package_skimmer$Main$has, '0.17 compatible', pkg.is_current),
-							A2(_mdgriffith$elm_package_skimmer$Main$cornerStone, 'package-svg-bottom-right', _mdgriffith$elm_package_skimmer$Main$AllColors)
-						])),
-					A2(
-					_elm_lang$html$Html$div,
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html_Attributes$class('links')
-						]),
-					_elm_lang$core$Native_List.fromArray(
-						[
-							A2(
-							_elm_lang$html$Html$a,
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html_Attributes$class('pkg-link'),
-									_elm_lang$html$Html_Attributes$href(
-									A2(
-										_elm_lang$core$Basics_ops['++'],
-										'http://package.elm-lang.org/packages/',
-										A2(_elm_lang$core$Basics_ops['++'], pkg.name, '/latest')))
-								]),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html$text('docs')
-								])),
-							A2(
-							_elm_lang$html$Html$a,
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html_Attributes$class('pkg-link'),
-									_elm_lang$html$Html_Attributes$href(
-									A2(_elm_lang$core$Basics_ops['++'], 'http://github.com/', pkg.name))
-								]),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html$text('source')
-								])),
-							A2(
-							_elm_lang$html$Html$a,
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html_Attributes$class('pkg-link'),
-									_elm_lang$html$Html_Attributes$href('google.com')
-								]),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html$text('who uses this?')
-								]))
-						])),
-					A2(
-					_mdgriffith$elm_package_skimmer$Main$flags,
-					_elm_lang$core$Basics$not(pkg.is_project),
-					pkg.deprecated)
-				]));
-	};
-	return A2(
-		_elm_lang$html$Html$div,
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$html$Html_Attributes$style(
-				_elm_lang$core$Native_List.fromArray(
-					[
-						{ctor: '_Tuple2', _0: 'position', _1: 'relative'},
-						{ctor: '_Tuple2', _0: 'margin-top', _1: '50px'},
-						{ctor: '_Tuple2', _0: 'z-index', _1: '1'}
-					]))
-			]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				A2(
-				_elm_lang$html$Html$span,
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html_Attributes$class('logo')
-					]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						A2(_mdgriffith$elm_package_skimmer$Main$cornerStone, 'logo-svg', _mdgriffith$elm_package_skimmer$Main$Grey)
-					])),
-				A2(
+var _mdgriffith$elm_package_skimmer$Main$viewPackages = F2(
+	function (pkgCount, pkgs) {
+		var viewPkg = function (pkg) {
+			return pkg.is_project ? A2(
 				_elm_lang$html$Html$div,
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$html$Html_Attributes$class('packages')
+						_elm_lang$html$Html_Attributes$class('package')
 					]),
-				A2(_elm_lang$core$List$map, viewPkg, pkgs))
-			]));
-};
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_elm_lang$html$Html$h1,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('name')
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								A2(
+								_elm_lang$html$Html$a,
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html_Attributes$href(
+										A2(_elm_lang$core$Basics_ops['++'], 'http://github.com/', pkg.name))
+									]),
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html$text(pkg.name)
+									]))
+							])),
+						A2(
+						_elm_lang$html$Html$div,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('summary')
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text(pkg.summary)
+							])),
+						A2(
+						_elm_lang$html$Html$div,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('metrics')
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								A3(_mdgriffith$elm_package_skimmer$Main$iconCount, 'star gold', 'stars', pkg.stars),
+								function () {
+								var _p17 = pkg.license;
+								if (_p17.ctor === 'Nothing') {
+									return A2(
+										_elm_lang$html$Html$div,
+										_elm_lang$core$Native_List.fromArray(
+											[
+												_elm_lang$html$Html_Attributes$class('metric')
+											]),
+										_elm_lang$core$Native_List.fromArray(
+											[
+												A2(
+												_elm_lang$html$Html$i,
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html_Attributes$class('fa fa-legal purple')
+													]),
+												_elm_lang$core$Native_List.fromArray(
+													[])),
+												_elm_lang$html$Html$text(' no license')
+											]));
+								} else {
+									return A2(
+										_elm_lang$html$Html$div,
+										_elm_lang$core$Native_List.fromArray(
+											[
+												_elm_lang$html$Html_Attributes$class('metric')
+											]),
+										_elm_lang$core$Native_List.fromArray(
+											[
+												A2(
+												_elm_lang$html$Html$i,
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html_Attributes$class('fa fa-legal purple')
+													]),
+												_elm_lang$core$Native_List.fromArray(
+													[])),
+												_elm_lang$html$Html$text(
+												A2(_elm_lang$core$Basics_ops['++'], ' ', _p17._0))
+											]));
+								}
+							}(),
+								A2(_mdgriffith$elm_package_skimmer$Main$cornerStone, 'package-svg-bottom-right', _mdgriffith$elm_package_skimmer$Main$AllColors)
+							])),
+						A2(
+						_elm_lang$html$Html$div,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('links')
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								A2(
+								_elm_lang$html$Html$a,
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html_Attributes$class('pkg-link'),
+										_elm_lang$html$Html_Attributes$href(
+										A2(_elm_lang$core$Basics_ops['++'], 'http://github.com/', pkg.name))
+									]),
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html$text('source')
+									]))
+							]))
+					])) : A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('package')
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_elm_lang$html$Html$h1,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('name')
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								A2(
+								_elm_lang$html$Html$a,
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html_Attributes$href(
+										A2(
+											_elm_lang$core$Basics_ops['++'],
+											'http://package.elm-lang.org/packages/',
+											A2(_elm_lang$core$Basics_ops['++'], pkg.name, '/latest')))
+									]),
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html$text(pkg.name)
+									]))
+							])),
+						A2(
+						_elm_lang$html$Html$div,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('summary')
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text(pkg.summary)
+							])),
+						A2(
+						_elm_lang$html$Html$div,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('metrics')
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								A3(_mdgriffith$elm_package_skimmer$Main$iconCount, 'star gold', 'stars', pkg.stars),
+								function () {
+								var _p18 = pkg.license;
+								if (_p18.ctor === 'Nothing') {
+									return A2(
+										_elm_lang$html$Html$div,
+										_elm_lang$core$Native_List.fromArray(
+											[
+												_elm_lang$html$Html_Attributes$class('metric')
+											]),
+										_elm_lang$core$Native_List.fromArray(
+											[
+												A2(
+												_elm_lang$html$Html$i,
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html_Attributes$class('fa fa-legal purple')
+													]),
+												_elm_lang$core$Native_List.fromArray(
+													[])),
+												_elm_lang$html$Html$text(' No license')
+											]));
+								} else {
+									return A2(
+										_elm_lang$html$Html$div,
+										_elm_lang$core$Native_List.fromArray(
+											[
+												_elm_lang$html$Html_Attributes$class('metric')
+											]),
+										_elm_lang$core$Native_List.fromArray(
+											[
+												A2(
+												_elm_lang$html$Html$i,
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html_Attributes$class('fa fa-legal purple')
+													]),
+												_elm_lang$core$Native_List.fromArray(
+													[])),
+												_elm_lang$html$Html$text(
+												A2(_elm_lang$core$Basics_ops['++'], ' ', _p18._0))
+											]));
+								}
+							}(),
+								A2(_mdgriffith$elm_package_skimmer$Main$has, '0.17 compatible', pkg.is_current),
+								A2(_mdgriffith$elm_package_skimmer$Main$cornerStone, 'package-svg-bottom-right', _mdgriffith$elm_package_skimmer$Main$AllColors)
+							])),
+						A2(
+						_elm_lang$html$Html$div,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('links')
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								A2(
+								_elm_lang$html$Html$a,
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html_Attributes$class('pkg-link'),
+										_elm_lang$html$Html_Attributes$href(
+										A2(
+											_elm_lang$core$Basics_ops['++'],
+											'http://package.elm-lang.org/packages/',
+											A2(_elm_lang$core$Basics_ops['++'], pkg.name, '/latest')))
+									]),
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html$text('docs')
+									])),
+								A2(
+								_elm_lang$html$Html$a,
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html_Attributes$class('pkg-link'),
+										_elm_lang$html$Html_Attributes$href(
+										A2(_elm_lang$core$Basics_ops['++'], 'http://github.com/', pkg.name))
+									]),
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html$text('source')
+									])),
+								function () {
+								var count = A2(_mdgriffith$elm_package_skimmer$Main$lookupCount, pkgCount, pkg.name);
+								return _elm_lang$core$Native_Utils.eq(count, 0) ? _elm_lang$html$Html$text('') : A2(
+									_elm_lang$html$Html$a,
+									_elm_lang$core$Native_List.fromArray(
+										[
+											_elm_lang$html$Html_Attributes$class('pkg-link'),
+											_elm_lang$html$Html_Events$onClick(
+											_mdgriffith$elm_package_skimmer$Main$Goto(pkg.name))
+										]),
+									_elm_lang$core$Native_List.fromArray(
+										[
+											_elm_lang$html$Html$text('who uses this? '),
+											A2(
+											_elm_lang$html$Html$span,
+											_elm_lang$core$Native_List.fromArray(
+												[
+													_elm_lang$html$Html_Attributes$class('pkg-count')
+												]),
+											_elm_lang$core$Native_List.fromArray(
+												[
+													_elm_lang$html$Html$text(
+													_elm_lang$core$Basics$toString(
+														A2(_mdgriffith$elm_package_skimmer$Main$lookupCount, pkgCount, pkg.name)))
+												]))
+										]));
+							}()
+							])),
+						A2(
+						_mdgriffith$elm_package_skimmer$Main$flags,
+						_elm_lang$core$Basics$not(pkg.is_project),
+						pkg.deprecated)
+					]));
+		};
+		return A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$style(
+					_elm_lang$core$Native_List.fromArray(
+						[
+							{ctor: '_Tuple2', _0: 'position', _1: 'relative'},
+							{ctor: '_Tuple2', _0: 'margin-top', _1: '50px'},
+							{ctor: '_Tuple2', _0: 'z-index', _1: '1'}
+						]))
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					A2(
+					_elm_lang$html$Html$span,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('logo')
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A2(_mdgriffith$elm_package_skimmer$Main$cornerStone, 'logo-svg', _mdgriffith$elm_package_skimmer$Main$Grey)
+						])),
+					A2(
+					_elm_lang$html$Html$div,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('packages')
+						]),
+					A2(_elm_lang$core$List$map, viewPkg, pkgs))
+				]));
+	});
 var _mdgriffith$elm_package_skimmer$Main$view = function (model) {
-	return A2(
-		_elm_lang$html$Html$div,
-		_elm_lang$core$Native_List.fromArray(
-			[]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				A3(_mdgriffith$elm_package_skimmer$Main$viewToolbar, model, model.retrieved, model.query.search),
-				_mdgriffith$elm_package_skimmer$Main$viewPackages(
-				A2(_mdgriffith$elm_package_skimmer$Main$searchFor, model.query, model.packages))
-			]));
+	var _p19 = model.location;
+	if (_p19.ctor === 'Overview') {
+		return A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					A3(_mdgriffith$elm_package_skimmer$Main$viewToolbar, model, model.retrieved, model.query.search),
+					A2(
+					_mdgriffith$elm_package_skimmer$Main$viewPackages,
+					model.depCount,
+					A2(_mdgriffith$elm_package_skimmer$Main$searchFor, model.query, model.packages))
+				]));
+	} else {
+		var viewVersion = function (_p20) {
+			var _p21 = _p20;
+			return A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('pkg-dep-versions')
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_elm_lang$html$Html$h1,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text(_p21._0)
+							])),
+						A2(
+						_elm_lang$html$Html$div,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('pkg-dep-vers-users')
+							]),
+						A2(
+							_elm_lang$core$List$map,
+							function (u) {
+								return A2(
+									_elm_lang$html$Html$a,
+									_elm_lang$core$Native_List.fromArray(
+										[
+											_elm_lang$html$Html_Attributes$href(
+											A2(_elm_lang$core$Basics_ops['++'], 'http://github.com/', u)),
+											_elm_lang$html$Html_Attributes$style(
+											_elm_lang$core$Native_List.fromArray(
+												[
+													{ctor: '_Tuple2', _0: 'display', _1: 'block'}
+												]))
+										]),
+									_elm_lang$core$Native_List.fromArray(
+										[
+											_elm_lang$html$Html$text(u)
+										]));
+							},
+							_p21._1))
+					]));
+		};
+		return A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$class('pkg-overview')
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					A2(
+					_elm_lang$html$Html$h2,
+					_elm_lang$core$Native_List.fromArray(
+						[]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text(_p19._0._0)
+						])),
+					A2(
+					_elm_lang$html$Html$a,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Events$onClick(_mdgriffith$elm_package_skimmer$Main$GotoOverview)
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text('return to main')
+						])),
+					A2(
+					_elm_lang$html$Html$div,
+					_elm_lang$core$Native_List.fromArray(
+						[]),
+					A2(_elm_lang$core$List$map, viewVersion, _p19._0._1))
+				]));
+	}
 };
 var _mdgriffith$elm_package_skimmer$Main$main = {
 	main: _elm_lang$html$Html_App$program(

@@ -9,6 +9,8 @@ import String
 import Svg
 import Svg.Attributes
 import Color
+import Json.Decode
+import Result
 
 
 main =
@@ -24,6 +26,9 @@ type alias Model =
     { retrieved : String
     , packages : List Package
     , query : Query
+    , deps : List Dependency
+    , depCount : List ( String, Int )
+    , location : Location
     }
 
 
@@ -47,6 +52,19 @@ type alias Package =
     }
 
 
+type alias Dependency =
+    ( String, List Version )
+
+
+type alias Version =
+    ( String, List String )
+
+
+type Location
+    = Overview
+    | PackageOverview Dependency
+
+
 init : ( Model, Cmd Msg )
 init =
     ( { retrieved = "never"
@@ -56,6 +74,9 @@ init =
             , projects = False
             , packages = True
             }
+      , deps = []
+      , location = Overview
+      , depCount = []
       }
     , Cmd.none
     )
@@ -66,9 +87,12 @@ type Msg
         { retrieved : String
         , packages : List Package
         }
+    | LoadDeps Json.Decode.Value
     | Search String
     | SeePackages Bool
     | SeeProjects Bool
+    | Goto String
+    | GotoOverview
 
 
 type alias Query =
@@ -78,9 +102,80 @@ type alias Query =
     }
 
 
+decodeDeps : Json.Decode.Decoder (List Dependency)
+decodeDeps =
+    Json.Decode.keyValuePairs decodeDep
+
+
+decodeDep : Json.Decode.Decoder (List Version)
+decodeDep =
+    Json.Decode.keyValuePairs (Json.Decode.list Json.Decode.string)
+
+
+getDepCount : Dependency -> ( String, Int )
+getDepCount ( name, vers ) =
+    let
+        count =
+            List.map (List.length << snd) vers
+                |> List.sum
+    in
+        ( name, count )
+
+
+type alias VersNum =
+    ( Int, Int, Int )
+
+
+toVers : List String -> VersNum
+toVers versions =
+    let
+        asNums =
+            List.filterMap (Result.toMaybe << String.toInt) versions
+
+        first =
+            Maybe.withDefault 0 <| List.head asNums
+
+        second =
+            Maybe.withDefault 0 <| List.head <| List.drop 1 asNums
+
+        third =
+            Maybe.withDefault 0 <| List.head <| List.drop 2 asNums
+    in
+        ( first, second, third )
+
+
+decodeVersion : String -> ( VersNum, VersNum )
+decodeVersion str =
+    let
+        lower =
+            toVers <| String.split "." <| String.left 5 str
+
+        upper =
+            toVers <| String.split "." <| String.right 5 str
+    in
+        ( upper, lower )
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        Goto locationName ->
+            case List.head <| List.filter (\dep -> fst dep == locationName) model.deps of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just pkg ->
+                    { model
+                        | location = PackageOverview pkg
+                    }
+                        ! []
+
+        GotoOverview ->
+            { model
+                | location = Overview
+            }
+                ! []
+
         Search query ->
             ( { model
                 | query =
@@ -113,6 +208,34 @@ update msg model =
               }
             , Cmd.none
             )
+
+        LoadDeps json ->
+            case Json.Decode.decodeValue decodeDeps json of
+                Ok dependencies ->
+                    let
+                        sortedDeps =
+                            List.map
+                                (\( name, versions ) ->
+                                    ( name
+                                    , List.sortWith
+                                        (\d1 d2 ->
+                                            compare
+                                                (decodeVersion <| fst d2)
+                                                (decodeVersion <| fst d1)
+                                        )
+                                        versions
+                                    )
+                                )
+                                dependencies
+                    in
+                        { model
+                            | deps = sortedDeps
+                            , depCount = List.map getDepCount dependencies
+                        }
+                            ! []
+
+                Err err ->
+                    model ! []
 
         Load packages ->
             let
@@ -182,9 +305,19 @@ port packages :
     -> Sub msg
 
 
+port deps :
+    (Json.Decode.Value
+     -> msg
+    )
+    -> Sub msg
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    packages Load
+    Sub.batch
+        [ packages Load
+        , deps LoadDeps
+        ]
 
 
 searchFor : Query -> List Package -> List Package
@@ -228,10 +361,27 @@ searchFor query packages =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ viewToolbar model model.retrieved model.query.search
-        , viewPackages (searchFor model.query model.packages)
-        ]
+    case model.location of
+        Overview ->
+            div []
+                [ viewToolbar model model.retrieved model.query.search
+                , viewPackages model.depCount (searchFor model.query model.packages)
+                ]
+
+        PackageOverview ( pkgName, versions ) ->
+            let
+                viewVersion ( name, users ) =
+                    div [ class "pkg-dep-versions" ]
+                        [ h1 [] [ text name ]
+                        , div [ class "pkg-dep-vers-users" ]
+                            (List.map (\u -> a [ href <| "http://github.com/" ++ u, style [ ( "display", "block" ) ] ] [ text u ]) users)
+                        ]
+            in
+                div [ class "pkg-overview" ]
+                    [ h2 [] [ text pkgName ]
+                    , a [ onClick GotoOverview ] [ text "return to main" ]
+                    , div [] (List.map viewVersion versions)
+                    ]
 
 
 viewToolbar : Model -> String -> String -> Html Msg
@@ -269,15 +419,20 @@ checkbox msg name isChecked =
         ]
 
 
-viewPackages : List Package -> Html Msg
-viewPackages pkgs =
+lookupCount : List ( String, Int ) -> String -> Int
+lookupCount cache name =
+    Maybe.withDefault 0 <| List.head <| List.map snd <| List.filter (\x -> fst x == name) cache
+
+
+viewPackages : List ( String, Int ) -> List Package -> Html Msg
+viewPackages pkgCount pkgs =
     let
         viewPkg pkg =
             if pkg.is_project then
                 div
                     [ class "package"
                     ]
-                    [ h1 [ class "name" ] [ a [ href <| "http://package.elm-lang.org/packages/" ++ pkg.name ++ "/latest" ] [ text pkg.name ] ]
+                    [ h1 [ class "name" ] [ a [ href <| "http://github.com/" ++ pkg.name ] [ text pkg.name ] ]
                     , div [ class "summary" ] [ text <| pkg.summary ]
                     , div [ class "metrics" ]
                         [ iconCount "star gold" "stars" pkg.stars
@@ -330,7 +485,14 @@ viewPackages pkgs =
                     , div [ class "links" ]
                         [ a [ class "pkg-link", href <| "http://package.elm-lang.org/packages/" ++ pkg.name ++ "/latest" ] [ text "docs" ]
                         , a [ class "pkg-link", href <| "http://github.com/" ++ pkg.name ] [ text "source" ]
-                        , a [ class "pkg-link", href "google.com" ] [ text "who uses this?" ]
+                        , let
+                            count =
+                                lookupCount pkgCount pkg.name
+                          in
+                            if count == 0 then
+                                text ""
+                            else
+                                a [ class "pkg-link", onClick <| Goto pkg.name ] [ text <| "who uses this? ", span [ class "pkg-count" ] [ text (toString <| lookupCount pkgCount pkg.name) ] ]
                         ]
                     , flags (not pkg.is_project) pkg.deprecated
                     ]
