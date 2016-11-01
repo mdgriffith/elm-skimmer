@@ -6,24 +6,18 @@ import re
 import pprint
 import requests.utils
 
-all_packages = "http://package.elm-lang.org/all-packages"
-
-packages_for_seventeen = "http://package.elm-lang.org/new-packages"
-
-github_json = "https://api.github.com/repos/"
-
 now = datetime.datetime.now()
 
-redirect_matcher = re.compile("(?:elm-lang.org/|github.com/)?(\S+/[^/\.\s]+)")
-
+all_packages = "http://package.elm-lang.org/all-packages"
+packages_for_seventeen = "http://package.elm-lang.org/new-packages"
+github_json = "https://api.github.com/repos/"
 test_dir = "https://api.github.com/repos/{package}/contents/test?ref=master"
 tests_dir = "https://api.github.com/repos/{package}/contents/tests?ref=master"
 examples_dir = "https://api.github.com/repos/{package}/contents/examples?ref=master"
 elm_package_file = "https://raw.githubusercontent.com/{package}/master/elm-package.json?ref=master"
 download_file_location = "https://github.com/{package}/archive/master.zip"
 
-
-
+redirect_matcher = re.compile("(?:elm-lang.org/|github.com/)?(\S+/[^/\.\s]+)")
 
 
 def wait_for_reset_if_necessary(headers):
@@ -31,12 +25,17 @@ def wait_for_reset_if_necessary(headers):
     remain = headers.get("X-RateLimit-Remaining", None)
     resetAt = headers.get("X-RateLimit-Reset",None)
 
+
+    if remain is not None and int(remain) % 100 == 0:
+        print str(remain)  + " github requests remaining until pause for reset."
+
     if resetAt is not None:
-        if remain == 0:
+        if remain is not None and int(remain) == 0:
             now_epoch = time.time()
-            waitFor = resetAt - now_epoch
+            waitFor = int(resetAt) - now_epoch
+            print "RESET REQUIRED: " + str(resetAt)
             print "waiting for " + str(waitFor) + " seconds for limits to reset"
-            time.sleep(waitFor)
+            time.sleep(waitFor + 10)
 
 
 def download_file(url, local_filename):
@@ -54,11 +53,7 @@ def download_file(url, local_filename):
 
 def download_elm_package_zip():
 
-    credentials = None
-    with open('credentials/github.json') as GITHUB:
-        credentials = json.loads(GITHUB.read())
-    if credentials is None:
-        raise "No github credentials!"
+    credentials = get_github_credentials()
 
     packages = []
     with open("primary/package-index.json") as INDEX:
@@ -75,16 +70,27 @@ def download_elm_package_zip():
 
         time.sleep(0.1)
 
-
-
-def get_github_data(projects):
-
+def get_github_credentials():
     credentials = None
     with open('credentials/github.json') as GITHUB:
         credentials = json.loads(GITHUB.read())
     if credentials is None:
         raise "No github credentials!"
+    return credentials
 
+
+def github_get(url, credentials):
+    data = requests.get(url, params=credentials)
+    result = None
+    if data.status_code < 300 and data.status_code >= 200:
+        result = json.loads(data.content)
+    wait_for_reset_if_necessary(data.headers)
+    return result
+
+def get_github_data(projects):
+
+    credentials = get_github_credentials()
+    
     print "retrieving github data"
     total = len(projects)
     full_pkg_data = {}
@@ -304,11 +310,7 @@ def get_elm_package_index():
 
 
 def get_top_elm_repos():
-    credentials = None
-    with open('credentials/github.json') as GITHUB:
-        credentials = json.loads(GITHUB.read())
-    if credentials is None:
-        raise "No github credentials!"
+    credentials = get_github_credentials()
 
     packages = []
     with open("primary/package-index.json") as INDEX:
@@ -330,7 +332,12 @@ def get_top_elm_repos():
         if projects_response.status_code < 300 and projects_response.status_code >= 200:
             project_data = json.loads(projects_response.content)
             only_nonpackages = [proj for proj in project_data["items"] if proj["full_name"] not in package_names ]
-            projects.extend([{u"name":proj["full_name"], u"summary":proj["description"], u"project_type":u"project", u"versions":None} for proj in only_nonpackages])
+            projects.extend([ { u"name":proj["full_name"]
+                              , u"summary":proj["description"]
+                              , u"project_type":u"project"
+                              , u"versions":None
+                              } for proj in only_nonpackages
+                            ])
             retrieved = len(projects)
             
         else:
@@ -344,6 +351,19 @@ def get_top_elm_repos():
     return projects
 
 
+def get_whitelist():
+    whitelisted = []
+    with open("whitelist") as WHITELIST: 
+        for name in WHITELIST.read().split("\n"):
+            if name != "" and not name.isspace():
+                whitelisted.append({ u"name":name
+                                   , u"project_type":u"project"
+                                   , u"versions":None
+                                   }
+                                  )
+    return whitelisted
+
+
 
 
 
@@ -352,7 +372,9 @@ if __name__ == "__main__":
     # download_elm_package_zip()
     projects = get_top_elm_repos()
     packages = get_elm_package_index()
-    everything = packages + projects
+    whitelist = get_whitelist()
+
+    everything = packages + projects + whitelist
 
     github_data = get_github_data(everything)
     extract_metrics(everything, github_data)

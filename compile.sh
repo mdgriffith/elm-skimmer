@@ -1,0 +1,1 @@
+elm-make src/Skimmer.elm --output html/elm.js
