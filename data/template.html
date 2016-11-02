@@ -301,5 +301,6 @@
         var element = document.getElementById("elm");
         var app = Elm.Main.embed(element);
         app.ports.packages.send(data);
+        app.ports.deps.send(deps);
     </script>
 </html>

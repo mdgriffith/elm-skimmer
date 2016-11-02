@@ -11,6 +11,7 @@ now = datetime.datetime.now()
 all_packages = "http://package.elm-lang.org/all-packages"
 packages_for_seventeen = "http://package.elm-lang.org/new-packages"
 github_json = "https://api.github.com/repos/"
+github_releases = "https://api.github.com/repos/{package}/releases"
 test_dir = "https://api.github.com/repos/{package}/contents/test?ref=master"
 tests_dir = "https://api.github.com/repos/{package}/contents/tests?ref=master"
 examples_dir = "https://api.github.com/repos/{package}/contents/examples?ref=master"
@@ -34,6 +35,8 @@ def wait_for_reset_if_necessary(headers):
             now_epoch = time.time()
             waitFor = int(resetAt) - now_epoch
             print "RESET REQUIRED: " + str(resetAt)
+            print "limit is at " + str(remain)
+            print "remaining: " + str(limit)
             print "waiting for " + str(waitFor) + " seconds for limits to reset"
             time.sleep(waitFor + 10)
 
@@ -106,30 +109,10 @@ def get_github_data(projects):
         wait_for_reset_if_necessary(pkg_data.headers)
 
         if github_data:
-            # Has Test Directory
-            has_test_dir = requests.get(test_dir.format(package=pkg["name"]), params=credentials)
-            if has_test_dir.status_code < 300 and has_test_dir.status_code >= 200:
-                github_data["has_test_dir"] = len(json.loads(has_test_dir.content)) > 0
-            else:
-                github_data["has_test_dir"] = False
-            wait_for_reset_if_necessary(has_test_dir.headers)
 
-            if github_data["has_test_dir"] is False:
-                has_test_dir = requests.get(tests_dir.format(package=pkg["name"]), params=credentials)
-                if has_test_dir.status_code < 300 and has_test_dir.status_code >= 200:
-                    github_data["has_test_dir"] = len(json.loads(has_test_dir.content)) > 0
-                else:
-                    github_data["has_test_dir"] = False
-                wait_for_reset_if_necessary(has_test_dir.headers)
-
-
-            # Has Examples Directory
-            has_examples_dir = requests.get(examples_dir.format(package=pkg["name"]), params=credentials)
-            if has_examples_dir.status_code < 300 and has_examples_dir.status_code >= 200:
-                github_data["has_examples_dir"] = len(json.loads(has_examples_dir.content)) > 0
-            else:
-                github_data["has_examples_dir"] = False
-            wait_for_reset_if_necessary(has_examples_dir.headers)
+            # we removed these checks because we dont use them.
+            github_data["has_test_dir"] = False
+            github_data["has_examples_dir"] = False
 
 
             # Retrieve Elm Package Info
@@ -151,6 +134,22 @@ def get_github_data(projects):
             else:
                 github_data["elm_package"] = None
 
+            # test = requests.get('https://api.github.com/repos/reactiveui/ReactiveUI/releases',  params=credentials)
+            # print test.content
+
+            # # retrieve releases information
+            # releases = requests.get(github_releases.format(package=pkg["name"]), params=credentials)
+            # print github_releases.format(package=pkg["name"])
+            # print str(releases)
+            # print str(releases.headers)
+            # release_data = {}
+            # if releases.status_code < 300 and releases.status_code >= 200:
+            #     print releases.content
+            #     release_data = json.loads(releases.content)
+            # else:
+            #     print "failed retrieval"
+            # wait_for_reset_if_necessary(releases.headers)
+            # github_data["releases"] = release_data
             full_pkg_data[pkg["name"]] = github_data
             wait_for_reset_if_necessary(elm_package.headers)
 
@@ -268,7 +267,7 @@ def extract_metrics(packages, full_github_data):
 
 
     with open("metrics/reverse_deps.json", "w") as INDEX:
-        INDEX.write(json.dumps(reverse_dep_count, indent=4))
+        INDEX.write(json.dumps(reverse_dep_count, indent=None))
 
 
     with open("metrics/current.json", "w") as INDEX:
@@ -324,11 +323,8 @@ def get_top_elm_repos():
     retrieved = 0
     projects = []
 
-    while retrieved < 201:
-        
+    while retrieved < 1001:
         projects_response = requests.get(search, params=search_params)
-        # pprint.pprint(projects_response.headers)
-       
         if projects_response.status_code < 300 and projects_response.status_code >= 200:
             project_data = json.loads(projects_response.content)
             only_nonpackages = [proj for proj in project_data["items"] if proj["full_name"] not in package_names ]
@@ -342,11 +338,10 @@ def get_top_elm_repos():
             
         else:
             print "error retrieving projects"
-            break
-
+            continue
         search = [link for link in requests.utils.parse_header_links(projects_response.headers['Link']) if link['rel'] == 'next'][0]["url"]
         search_params = {}
-        # break
+        wait_for_reset_if_necessary(projects_response.headers)
 
     return projects
 
@@ -366,8 +361,6 @@ def get_whitelist():
 
 
 
-
-
 if __name__ == "__main__":
     # download_elm_package_zip()
     projects = get_top_elm_repos()
@@ -377,6 +370,7 @@ if __name__ == "__main__":
     everything = packages + projects + whitelist
 
     github_data = get_github_data(everything)
+    # pprint.pprint(github_data)
     extract_metrics(everything, github_data)
     render_template()
 
