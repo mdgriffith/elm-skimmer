@@ -35,9 +35,30 @@ def wait_for_reset_if_necessary(headers):
             now_epoch = time.time()
             waitFor = int(resetAt) - now_epoch
             print "RESET REQUIRED: " + str(resetAt)
-            print "limit is at " + str(remain)
-            print "remaining: " + str(limit)
+            print "limit is at " + str(limit)
+            print "remaining: " + str(remain)
             print "waiting for " + str(waitFor) + " seconds for limits to reset"
+            time.sleep(waitFor + 10)
+
+
+
+def wait_for_reset(api_type):
+    rate_limit = get_rate_limit()
+    if api_type == "search":
+        limit = rate_limit['resources']['search']['limit']
+        remain = rate_limit['resources']['search']['remaining']
+        resetAt = rate_limit['resources']['search']['reset']
+    else:
+        raise Exception
+
+    if resetAt is not None:
+        if remain is not None and int(remain) == 0:
+            now_epoch = time.time()
+            waitFor = int(resetAt) - now_epoch
+            print "RESET REQUIRED: " + str(resetAt)
+            print "limit is at " + str(limit)
+            print "remaining: " + str(remain)
+            print "waiting for " + str(waitFor + 10) + " seconds for limits to reset"
             time.sleep(waitFor + 10)
 
 
@@ -306,6 +327,10 @@ def get_elm_package_index():
     return all_pkgs
             
 
+def get_rate_limit():
+    credentials = get_github_credentials()
+    limit = requests.get("https://api.github.com/rate_limit", params=credentials)
+    return json.loads(limit.content)
 
 
 def get_top_elm_repos():
@@ -321,12 +346,21 @@ def get_top_elm_repos():
     search_params = {'q':'language:elm', 'sort':'stars', 'order':'desc'}
     search_params.update(credentials)
     retrieved = 0
+    actual_count = 0
     projects = []
 
-    while retrieved < 1001:
+    print "searching for elm projects..."
+    while retrieved < 10000:
+        wait_for_reset("search")
         projects_response = requests.get(search, params=search_params)
+
+        # pprint.pprint(json.loads(projects_response.content))
+        # break
         if projects_response.status_code < 300 and projects_response.status_code >= 200:
             project_data = json.loads(projects_response.content)
+
+            actual_count = actual_count + len(project_data["items"])
+            
             only_nonpackages = [proj for proj in project_data["items"] if proj["full_name"] not in package_names ]
             projects.extend([ { u"name":proj["full_name"]
                               , u"summary":proj["description"]
@@ -335,13 +369,19 @@ def get_top_elm_repos():
                               } for proj in only_nonpackages
                             ])
             retrieved = len(projects)
-            
+            print "retrieved " + str(retrieved) + " out of (" + str(actual_count) + "/" + str(project_data['total_count']) + ")"
+            if actual_count >= project_data['total_count']:
+                break
         else:
             print "error retrieving projects"
             continue
-        search = [link for link in requests.utils.parse_header_links(projects_response.headers['Link']) if link['rel'] == 'next'][0]["url"]
-        search_params = {}
-        wait_for_reset_if_necessary(projects_response.headers)
+        try:
+            search = [link for link in requests.utils.parse_header_links(projects_response.headers['Link']) if link['rel'] == 'next'][0]["url"]
+            search_params = credentials
+        except IndexError:
+            print "Unable to find link to next page, breaking"
+            break
+        
 
     return projects
 
@@ -362,6 +402,8 @@ def get_whitelist():
 
 
 if __name__ == "__main__":
+    # pprint.pprint(get_rate_limit())
+
     # download_elm_package_zip()
     projects = get_top_elm_repos()
     packages = get_elm_package_index()
@@ -370,7 +412,7 @@ if __name__ == "__main__":
     everything = packages + projects + whitelist
 
     github_data = get_github_data(everything)
-    # pprint.pprint(github_data)
+    # # pprint.pprint(github_data)
     extract_metrics(everything, github_data)
     render_template()
 
