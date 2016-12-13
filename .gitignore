@@ -1,6 +1,6 @@
 data/env
 *.pyc
-*.json
+data/metrics
 data/credentials
 data/primary
 src/Data.elm
