@@ -3,7 +3,6 @@ port module Main exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Html.App
 import Time exposing (Time, second)
 import String
 import Svg
@@ -14,7 +13,7 @@ import Result
 
 
 main =
-    Html.App.program
+    Html.program
         { init = init
         , view = view
         , update = update
@@ -116,7 +115,7 @@ getDepCount : Dependency -> ( String, Int )
 getDepCount ( name, vers ) =
     let
         count =
-            List.map (List.length << snd) vers
+            List.map (List.length << Tuple.second) vers
                 |> List.sum
     in
         ( name, count )
@@ -160,7 +159,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Goto locationName ->
-            case List.head <| List.filter (\dep -> fst dep == locationName) model.deps of
+            case List.head <| List.filter (\dep -> Tuple.first dep == locationName) model.deps of
                 Nothing ->
                     ( model, Cmd.none )
 
@@ -220,8 +219,8 @@ update msg model =
                                     , List.sortWith
                                         (\d1 d2 ->
                                             compare
-                                                (decodeVersion <| fst d2)
-                                                (decodeVersion <| fst d1)
+                                                (decodeVersion <| Tuple.first d2)
+                                                (decodeVersion <| Tuple.first d1)
                                         )
                                         versions
                                     )
@@ -416,14 +415,14 @@ radio value msg isChecked =
     label
         [ style [ ( "padding", "10px" ) ]
         ]
-        [ input [ type' "radio", name "font-size", onClick msg, checked isChecked ] []
+        [ input [ type_ "radio", name "font-size", onClick msg, checked isChecked ] []
         , text value
         ]
 
 
 lookupCount : List ( String, Int ) -> String -> Int
 lookupCount cache name =
-    Maybe.withDefault 0 <| List.head <| List.map snd <| List.filter (\x -> fst x == name) cache
+    Maybe.withDefault 0 <| List.head <| List.map Tuple.second <| List.filter (\x -> Tuple.first x == name) cache
 
 
 viewPackages : List ( String, Int ) -> List Package -> Html Msg
@@ -479,7 +478,7 @@ viewPackages pkgCount pkgs =
                           -- , iconCount "code-fork" "forks" pkg.forks
                           -- , iconCount "eye" "watchers" pkg.watchers
                           -- , iconCount "exclamation" "open issues" pkg.open_issues
-                        , has "0.17 compatible" pkg.is_current
+                        , has "0.18 compatible" pkg.is_current
                           --, has "tests" pkg.has_tests
                           --, has "examples" pkg.has_examples
                         , cornerStone "package-svg-bottom-right" AllColors
