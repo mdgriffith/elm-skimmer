@@ -85,6 +85,9 @@ def download_elm_package_zip():
         packages = json.loads(index)
 
     print "retrieving github data"
+    if not os.path.exists("raw"):
+        os.makedirs("raw")
+
     total = len(packages)
     full_pkg_data = {}
     for i, pkg in enumerate(packages):
@@ -196,6 +199,9 @@ def remove_github_prefix(text):
 
 
 
+    
+
+
 def extract_metrics(packages, full_github_data):
     # packages = []
     # with open("primary/package-index.json") as INDEX:
@@ -286,6 +292,10 @@ def extract_metrics(packages, full_github_data):
                     reverse_dep_count[key] = {}
                     reverse_dep_count[key][versions] = [pkg["name"]]
 
+
+    if not os.path.exists("metrics"):
+        os.makedirs("metrics")
+ 
 
     with open("metrics/reverse_deps.json", "w") as INDEX:
         INDEX.write(json.dumps(reverse_dep_count, indent=None))
